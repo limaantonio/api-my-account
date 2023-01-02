@@ -2,12 +2,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  BaseEntity,
   OneToMany,
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { Account } from './Account';
 import { Budget } from './Budget';
 import { Entry } from './Entry';
 

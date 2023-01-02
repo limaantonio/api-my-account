@@ -5,8 +5,6 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Account } from './Account';
-import { Balance } from './Balance';
 import { Entry } from './Entry';
 
 @Entity('item')

@@ -6,10 +6,8 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { Balance } from './Balance';
 import { Budget } from './Budget';
 import { Entry } from './Entry';
-import { Item } from './Item';
 
 export enum TypeRole {
   WAGE = 'salário',
@@ -40,9 +38,6 @@ class Account {
   name!: string;
 
   @Column()
-  description!: string;
-
-  @Column()
   amount!: number;
 
   @Column({
@@ -63,13 +58,7 @@ class Account {
   number_of_installments!: number;
 
   @Column()
-  installment_value!: number;
-
-  @Column()
   budget_id!: string;
-
-  @Column()
-  balance_id!: string;
 
   @Column()
   created_at!: Date;

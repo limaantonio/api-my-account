@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Account } from './Account';
 import { Balance } from './Balance';
 
-@Entity('bugdet')
+@Entity('budget')
 class Budget {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

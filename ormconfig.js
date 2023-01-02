@@ -10,9 +10,9 @@ module.exports = {
    //   },
    // },
    port: 5432,
-   username: process.env.USERNAME,
-   password:process.env.PASSWORD,
-   database: process.env.DATABSE,
+   username: 'postgres',
+   password: 'root',
+   database: 'db_my_account',
    migrations: ["./src/database/migrations/*.ts"],
    entities: ["./src/entities/*.ts"],
    cli: {
