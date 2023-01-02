@@ -1,6 +1,6 @@
-import { MigrationInterface, Table, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTableBalance1672464924434 implements MigrationInterface {
+export class CreateTableBalance1672635333277 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -18,6 +18,10 @@ export class CreateTableBalance1672464924434 implements MigrationInterface {
             type: 'integer',
           },
           {
+            name: 'budget_id',
+            type: 'uuid',
+          },
+          {
             name: 'created_at',
             type: 'timestamp',
             default: 'now()',
@@ -26,6 +30,16 @@ export class CreateTableBalance1672464924434 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             isNullable: true,
+          },
+        ],
+        foreignKeys: [
+          {
+            name: 'FKBudget',
+            referencedTableName: 'budget',
+            referencedColumnNames: ['id'],
+            columnNames: ['budget_id'],
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
           },
         ],
       }),

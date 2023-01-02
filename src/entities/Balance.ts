@@ -1,4 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToMany,
+  JoinColumn,
+  ManyToOne,
+} from 'typeorm';
+import { Account } from './Account';
+import { Budget } from './Budget';
+import { Entry } from './Entry';
 
 @Entity('balance')
 class Balance {
@@ -13,6 +24,15 @@ class Balance {
 
   @Column()
   updated_at!: Date;
+
+  @ManyToOne(() => Budget, bugdet => bugdet.balance, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'budget_id' })
+  buget: Budget;
+
+  @OneToMany(() => Entry, entry => entry.balance)
+  entry: Entry;
 }
 
 export { Balance };

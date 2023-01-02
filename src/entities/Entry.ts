@@ -5,10 +5,10 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
+import { Account } from './Account';
 import { Balance } from './Balance';
-import { Budget } from './Budget';
-import { Entry } from './Entry';
 import { Item } from './Item';
 
 export enum TypeRole {
@@ -31,13 +31,10 @@ export enum TypeRole {
   EXPENSE = 'despesa',
 }
 
-@Entity('account')
-class Account {
+@Entity('entry')
+class Entry {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
-
-  @Column()
-  name!: string;
 
   @Column()
   description!: string;
@@ -63,7 +60,7 @@ class Account {
   number_of_installments!: number;
 
   @Column()
-  installment_value!: number;
+  installment!: number;
 
   @Column()
   budget_id!: string;
@@ -77,14 +74,20 @@ class Account {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Budget, budget => budget.account, {
+  @ManyToOne(() => Balance, balance => balance.entry, {
     eager: true,
   })
-  @JoinColumn({ name: 'budget_id' })
-  budget: Budget;
+  @JoinColumn({ name: 'balance_id' })
+  balance: Balance;
 
-  @OneToMany(() => Entry, entry => entry.account)
-  entry: Entry;
+  @OneToOne(() => Account, account => account.entry, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'account_id' })
+  account: Account;
+
+  @OneToMany(() => Item, item => item.entry)
+  item: Item;
 }
 
-export { Account };
+export { Entry };

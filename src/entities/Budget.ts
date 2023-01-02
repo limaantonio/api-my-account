@@ -1,7 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Account } from './Account';
+import { Balance } from './Balance';
 
 @Entity('bugdet')
-class Bugdet {
+class Budget {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -13,6 +15,12 @@ class Bugdet {
 
   @Column()
   updated_at!: Date;
+
+  @OneToMany(() => Balance, balance => balance.buget)
+  balance: Balance;
+
+  @OneToMany(() => Account, account => account.budget)
+  account: Account;
 }
 
-export { Bugdet };
+export { Budget };

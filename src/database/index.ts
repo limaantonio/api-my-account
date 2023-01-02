@@ -1,22 +1,25 @@
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
+// import 'reflect-metadata';
+// import { DataSource } from 'typeorm';
 
-const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'docker',
-  password: '9121',
-  database: 'rentx',
-  synchronize: false,
-  logging: false,
-  entities: ['src/entities/*.ts'],
-  migrations: ['./src/database/migrations/*.ts'],
-  subscribers: [],
-});
+// const AppDataSource = new DataSource({
+//   type: 'postgres',
+//   host: 'localhost',
+//   port: 5432,
+//   username: 'docker',
+//   password: '9121',
+//   database: 'rentx',
+//   synchronize: false,
+//   logging: false,
+//   entities: ['src/entities/*.ts'],
+//   migrations: ['./src/database/migrations/*.ts'],
+//   subscribers: [],
+// });
 
-export function createConnection(host = 'database'): Promise<DataSource> {
-  return AppDataSource.setOptions({ host }).initialize();
-}
+// export function createConnection(host = 'database'): Promise<DataSource> {
+//   return AppDataSource.setOptions({ host }).initialize();
+// }
 
-export default AppDataSource;
+// export default AppDataSource;
+import { createConnection } from 'typeorm';
+
+createConnection();
