@@ -22,7 +22,7 @@ class Item {
   amount!: Number;
 
   @Column()
-  account_id!: string;
+  entry_id!: string;
 
   @Column()
   created_at!: Date;
@@ -30,9 +30,7 @@ class Item {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Entry, entry => entry.item, {
-    eager: true,
-  })
+  @ManyToOne(() => Entry, entry => entry.item)
   @JoinColumn({ name: 'entry_id' })
   entry: Entry;
 }

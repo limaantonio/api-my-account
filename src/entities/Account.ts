@@ -66,9 +66,7 @@ class Account {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Budget, budget => budget.account, {
-    eager: true,
-  })
+  @ManyToOne(() => Budget, budget => budget.account)
   @JoinColumn({ name: 'budget_id' })
   budget: Budget;
 

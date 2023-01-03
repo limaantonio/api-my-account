@@ -16,10 +16,12 @@ class Budget {
   @Column()
   updated_at!: Date;
 
-  @OneToMany(() => Balance, balance => balance.buget)
+  @OneToMany(() => Balance, balance => balance.budget)
   balance: Balance;
 
-  @OneToMany(() => Account, account => account.budget)
+  @OneToMany(() => Account, account => account.budget, {
+    eager: true,
+  })
   account: Account;
 }
 

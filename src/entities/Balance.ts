@@ -23,13 +23,13 @@ class Balance {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Budget, bugdet => bugdet.balance, {
+  @ManyToOne(() => Budget, bugdet => bugdet.balance)
+  @JoinColumn({ name: 'budget_id' })
+  budget: Budget;
+
+  @OneToMany(() => Entry, entry => entry.balance, {
     eager: true,
   })
-  @JoinColumn({ name: 'budget_id' })
-  buget: Budget;
-
-  @OneToMany(() => Entry, entry => entry.balance)
   entry: Entry;
 }
 

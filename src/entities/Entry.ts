@@ -11,26 +11,6 @@ import { Account } from './Account';
 import { Balance } from './Balance';
 import { Item } from './Item';
 
-export enum TypeRole {
-  WAGE = 'salário',
-  WAGE_BONUS = 'salário bônus',
-  WAGE_EXTRA = 'salário extra',
-  WAGE_OTHER = 'salário outros',
-  RETIREMENT = 'aposentadoria',
-  FAMILY_FUND = 'fundos familiares',
-  INVESTIMENT = 'investimento',
-  INVESTIMENT_OTHER = 'investimento outros',
-  CURRENT_EXPENSES = 'despesas correntes',
-  CURRENT_EXPENSES_OTHER = 'despesas correntes outros',
-  INTEREST_AND_CHARGES = 'juros e encargos',
-  OTHER = 'outros',
-}
-
-export enum TypeRole {
-  INCOME = 'receita',
-  EXPENSE = 'despesa',
-}
-
 @Entity('entry')
 class Entry {
   @PrimaryGeneratedColumn('uuid')
@@ -42,28 +22,11 @@ class Entry {
   @Column()
   amount!: number;
 
-  @Column({
-    type: 'enum',
-    enum: TypeRole,
-    default: TypeRole.OTHER,
-  })
-  sub_account: TypeRole;
-
-  @Column({
-    type: 'enum',
-    enum: TypeRole,
-    default: TypeRole.EXPENSE,
-  })
-  type: TypeRole;
-
   @Column()
   number_of_installments!: number;
 
   @Column()
   installment!: number;
-
-  @Column()
-  budget_id!: string;
 
   @Column()
   balance_id!: string;
@@ -74,9 +37,7 @@ class Entry {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Balance, balance => balance.entry, {
-    eager: true,
-  })
+  @ManyToOne(() => Balance, balance => balance.entry)
   @JoinColumn({ name: 'balance_id' })
   balance: Balance;
 
@@ -86,7 +47,9 @@ class Entry {
   @JoinColumn({ name: 'account_id' })
   account: Account;
 
-  @OneToMany(() => Item, item => item.entry)
+  @OneToMany(() => Item, item => item.entry, {
+    eager: true,
+  })
   item: Item;
 }
 

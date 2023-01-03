@@ -40,6 +40,23 @@ export default class BudgetController {
     return response.json(budgets);
   }
 
+  async deletById(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Budget>> {
+    const budgetRepository = getCustomRepository(BudgetRepository);
+    const { id } = request.params;
+
+    try {
+      await budgetRepository.delete(id);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.status(204);
+  }
+
   async create(
     request: Request,
     response: Response,
