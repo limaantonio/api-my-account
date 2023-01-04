@@ -22,16 +22,19 @@ routes.get('/account', accountController.listAll);
 routes.get('/account/:id/', accountController.listById);
 routes.post('/account', accountController.create);
 routes.put('/account/:id/', accountController.update);
+routes.delete('/account/:id/', accountController.deletById);
 
 routes.get('/balance', balanceController.listAll);
 routes.get('/balance/:id/', balanceController.listById);
 routes.post('/balance', balanceController.create);
 routes.put('/balance/:id/', balanceController.update);
+routes.delete('/balance/:id/', balanceController.deletById);
 
 routes.get('/entry', entryController.listAll);
 routes.get('/entry/:id/', entryController.listById);
 routes.post('/entry', entryController.create);
 routes.put('/entry/:id/', entryController.update);
+routes.delete('/entry/:id/', entryController.deletById);
 
 routes.get('/item', itemController.listAll);
 routes.get('/item/:id/', itemController.listById);

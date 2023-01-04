@@ -70,6 +70,22 @@ export default class BalanceController {
     return response.json(balance);
   }
 
+  async deletById(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Balance>> {
+    const balanceRepository = getCustomRepository(BalanceRepository);
+    const { id } = request.params;
+
+    try {
+      await balanceRepository.delete(id);
+    } catch (error) {
+      return response.json(error);
+    }
+
+    return response.status(204);
+  }
+
   async update(
     request: Request,
     response: Response,
@@ -78,11 +94,12 @@ export default class BalanceController {
     const { id } = request.params;
     const data = request.body;
 
-    let balance;
+    let balance = await balanceRepository.findOne(id);
 
     try {
       balance = await balanceRepository.update(id, {
-        ...data,
+        month: data.month ? data.month : balance?.month,
+        budget: data.budget ? data.budget : balance?.budget,
         updated_at: new Date(),
       });
     } catch (error) {

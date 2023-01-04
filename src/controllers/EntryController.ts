@@ -76,16 +76,39 @@ export default class EntryController {
     return response.json(entry);
   }
 
+  async deletById(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Entry>> {
+    const entryRepository = getCustomRepository(EntryRepository);
+    const { id } = request.params;
+
+    try {
+      await entryRepository.delete(id);
+    } catch (error) {
+      return response.json(error);
+    }
+
+    return response.status(204);
+  }
+
   async update(request: Request, response: Response): Promise<Response<Entry>> {
     const entryRepository = getCustomRepository(EntryRepository);
     const { id } = request.params;
     const data = request.body;
 
-    let entry;
+    let entry = await entryRepository.findOne(id);
 
     try {
       entry = await entryRepository.update(id, {
-        ...data,
+        description: data.description ? data.description : entry?.description,
+        amount: data.amount ? data.amount : entry?.amount,
+        installment: data.installment ? data.installment : entry?.installment,
+        number_of_installments: data.number_of_installments
+          ? entry?.number_of_installments
+          : entry?.number_of_installments,
+        balance: data.balance ? data.balance : entry?.balance,
+        account: data.account ? data.account : entry?.account,
         updated_at: new Date(),
       });
     } catch (error) {

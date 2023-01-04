@@ -74,6 +74,22 @@ export default class AccountController {
     return response.json(account);
   }
 
+  async deletById(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    const { id } = request.params;
+
+    try {
+      await accountRepository.delete(id);
+    } catch (error) {
+      return response.json(error);
+    }
+
+    return response.status(204);
+  }
+
   async update(
     request: Request,
     response: Response,
@@ -82,11 +98,17 @@ export default class AccountController {
     const { id } = request.params;
     const data = request.body;
 
-    let account;
+    let account = await accountRepository.findOne(id);
 
     try {
       account = await accountRepository.update(id, {
-        ...data,
+        name: data.name ? data.name : account?.name,
+        amount: data.amount ? data.amount : account?.amount,
+        sub_account: data.sub_account ? data.sub_account : account?.sub_account,
+        type: data.type ? data.type : account?.type,
+        number_of_installments: data.number_of_installments
+          ? data.number_of_installments
+          : account?.number_of_installments,
         updated_at: new Date(),
       });
     } catch (error) {
