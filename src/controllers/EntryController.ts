@@ -1,9 +1,9 @@
 import { Entry } from '../entities/Entry';
 import EntryRepository from '../respositories/EntryRepository';
-import BudgetRepository from '../respositories/BudgetRepository';
-import AccountRepository from '../respositories/AccountRepository';
+import BalanceRepository from '../respositories/BalanceRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
+import AccountRepository from '../respositories/AccountRepository';
 
 export default class EntryController {
   async listAll(
@@ -43,18 +43,29 @@ export default class EntryController {
   }
 
   async create(request: Request, response: Response): Promise<Response<Entry>> {
-    const budgetRepository = getCustomRepository(BudgetRepository);
+    const balanceRepository = getCustomRepository(BalanceRepository);
     const accountRepository = getCustomRepository(AccountRepository);
     const entryRepository = getCustomRepository(EntryRepository);
     const data = request.body;
 
     let entry;
-    let budget;
+    let balance;
     let account;
+    let err;
 
     try {
-      budget = await budgetRepository.findOne({
-        where: { id: data.budget_id },
+      if (!data.balance_id) {
+        err = 'Balance is required';
+        throw new Error(err) as never;
+      }
+
+      if (!data.account_id) {
+        err = 'Account is required';
+        throw new Error(err) as never;
+      }
+
+      balance = await balanceRepository.findOne({
+        where: { id: data.balance_id },
       });
 
       account = await accountRepository.findOne({
@@ -63,8 +74,8 @@ export default class EntryController {
 
       entry = await entryRepository.create({
         ...data,
+        balance,
         account,
-        budget,
       });
 
       await entryRepository.save(entry);
@@ -100,15 +111,10 @@ export default class EntryController {
     let entry = await entryRepository.findOne(id);
 
     try {
-      entry = await entryRepository.update(id, {
+      await entryRepository.update(id, {
         description: data.description ? data.description : entry?.description,
-        amount: data.amount ? data.amount : entry?.amount,
         installment: data.installment ? data.installment : entry?.installment,
-        number_of_installments: data.number_of_installments
-          ? entry?.number_of_installments
-          : entry?.number_of_installments,
         balance: data.balance ? data.balance : entry?.balance,
-        account: data.account ? data.account : entry?.account,
         updated_at: new Date(),
       });
     } catch (error) {

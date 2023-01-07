@@ -19,28 +19,16 @@ export class CreateTableEntry1672635401232 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'amount',
-            type: 'decimal',
-            precision: 10,
-            scale: 2,
-          },
-          {
-            name: 'number_of_installments',
-            type: 'integer',
-            isNullable: true,
-          },
-          {
             name: 'installment',
             type: 'integer',
             isNullable: true,
           },
           {
-            name: 'account_id',
+            name: 'balance_id',
             type: 'uuid',
-            isNullable: true,
           },
           {
-            name: 'balance_id',
+            name: 'account_id',
             type: 'uuid',
           },
           {

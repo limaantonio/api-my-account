@@ -51,8 +51,14 @@ export default class AccountController {
 
     let account;
     let budget;
+    let err;
 
     try {
+      if (!data.budget_id) {
+        err = 'Budget is required';
+        throw new Error(err as any);
+      }
+
       budget = await budgetRepository.findOne({
         where: { id: data.budget_id },
       });
@@ -97,11 +103,12 @@ export default class AccountController {
     const accountRepository = getCustomRepository(AccountRepository);
     const { id } = request.params;
     const data = request.body;
+    let account: Account | undefined;
 
-    let account = await accountRepository.findOne(id);
+    account = await accountRepository.findOne(id);
 
     try {
-      account = await accountRepository.update(id, {
+      await accountRepository.update(id, {
         name: data.name ? data.name : account?.name,
         amount: data.amount ? data.amount : account?.amount,
         sub_account: data.sub_account ? data.sub_account : account?.sub_account,

@@ -18,6 +18,12 @@ export class CreateTableBalance1672635333277 implements MigrationInterface {
             type: 'integer',
           },
           {
+            name: 'status',
+            type: 'enum',
+            enum: ['CLOSED', 'IN_PROGRESS', 'PENDING'],
+            default: "'PENDING'",
+          },
+          {
             name: 'budget_id',
             type: 'uuid',
           },

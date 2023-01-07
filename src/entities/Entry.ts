@@ -20,12 +20,6 @@ class Entry {
   description!: string;
 
   @Column()
-  amount!: number;
-
-  @Column()
-  number_of_installments!: number;
-
-  @Column()
   installment!: number;
 
   @Column()
@@ -37,20 +31,20 @@ class Entry {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Balance, balance => balance.entry)
+  @ManyToOne(() => Balance, balance => balance.entries)
   @JoinColumn({ name: 'balance_id' })
   balance: Balance;
+
+  @OneToMany(() => Item, item => item.entry, {
+    eager: true,
+  })
+  items: Item[];
 
   @OneToOne(() => Account, account => account.entry, {
     eager: true,
   })
   @JoinColumn({ name: 'account_id' })
   account: Account;
-
-  @OneToMany(() => Item, item => item.entry, {
-    eager: true,
-  })
-  item: Item;
 }
 
 export { Entry };

@@ -25,8 +25,8 @@ export enum TypeRole {
 }
 
 export enum TypeRole {
-  INCOME = 'receita',
-  EXPENSE = 'despesa',
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE',
 }
 
 @Entity('account')
@@ -66,7 +66,7 @@ class Account {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Budget, budget => budget.account)
+  @ManyToOne(() => Budget, budget => budget.accounts)
   @JoinColumn({ name: 'budget_id' })
   budget: Budget;
 

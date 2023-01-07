@@ -3,6 +3,7 @@ import BalanceRepository from '../respositories/BalanceRepository';
 import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
+import { getResult } from '../services/BalanceService';
 
 export default class BalanceController {
   async listAll(
@@ -33,6 +34,8 @@ export default class BalanceController {
       balances = await balanceRepository.findOne({
         where: { id },
       });
+
+      getResult(balances as Balance);
     } catch (error) {
       console.log(error);
       return response.json(error);
@@ -51,11 +54,31 @@ export default class BalanceController {
 
     let balance;
     let budget;
+    let err;
 
     try {
-      budget = await budgetRepository.findOne({
-        where: { id: data.budget_id },
+      if (!data.budget_id) {
+        err = 'Budget is required';
+        throw new Error(err as any);
+      } else {
+        budget = await budgetRepository.findOne({
+          where: { id: data.budget_id },
+        });
+      }
+
+      if (!data.month) {
+        err = 'Month is required';
+        throw new Error('Month is required' as any);
+      }
+
+      const monthBalance = await balanceRepository.findOne({
+        where: { month: data.month },
       });
+
+      if (monthBalance) {
+        err = 'Month already exists';
+        throw Error('Month already exists' as any);
+      }
 
       balance = await balanceRepository.create({
         ...data,
@@ -63,8 +86,7 @@ export default class BalanceController {
       });
       await balanceRepository.save(balance);
     } catch (error) {
-      console.log(error);
-      return response.json(error);
+      return response.status(400).json({ Error: err });
     }
 
     return response.json(balance);
@@ -83,7 +105,7 @@ export default class BalanceController {
       return response.json(error);
     }
 
-    return response.status(204);
+    return response.status(204).json();
   }
 
   async update(
@@ -97,7 +119,7 @@ export default class BalanceController {
     let balance = await balanceRepository.findOne(id);
 
     try {
-      balance = await balanceRepository.update(id, {
+      await balanceRepository.update(id, {
         month: data.month ? data.month : balance?.month,
         budget: data.budget ? data.budget : balance?.budget,
         updated_at: new Date(),

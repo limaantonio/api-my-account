@@ -30,7 +30,7 @@ class Item {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Entry, entry => entry.item)
+  @ManyToOne(() => Entry, entry => entry.items)
   @JoinColumn({ name: 'entry_id' })
   entry: Entry;
 }

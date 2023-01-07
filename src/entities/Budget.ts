@@ -22,7 +22,7 @@ class Budget {
   @OneToMany(() => Account, account => account.budget, {
     eager: true,
   })
-  account: Account;
+  accounts: Account[];
 }
 
 export { Budget };

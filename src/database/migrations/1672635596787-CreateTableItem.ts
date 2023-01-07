@@ -27,12 +27,10 @@ export class CreateTableItem1672635596787 implements MigrationInterface {
             type: 'decimal',
             precision: 10,
             scale: 2,
-            isNullable: true,
           },
           {
             name: 'entry_id',
             type: 'uuid',
-            isNullable: true,
           },
           {
             name: 'created_at',

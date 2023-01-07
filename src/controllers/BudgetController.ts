@@ -2,6 +2,7 @@ import { Budget } from '../entities/Budget';
 import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
+import { getBudget } from '../services/BudgetService';
 
 export default class BudgetController {
   async listAll(
@@ -9,15 +10,23 @@ export default class BudgetController {
     response: Response,
   ): Promise<Response<Budget>> {
     const budgetRepository = getCustomRepository(BudgetRepository);
+
     let budgets = [];
+    let totalBudgets = [];
+
     try {
       budgets = await budgetRepository.find();
+      let _budget;
+      budgets.forEach(budget => {
+        _budget = getBudget(budget);
+      });
+      totalBudgets.push(_budget);
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(budgets);
+    return response.json(totalBudgets);
   }
 
   async listById(
@@ -26,18 +35,20 @@ export default class BudgetController {
   ): Promise<Response<Budget>> {
     const budgetRepository = getCustomRepository(BudgetRepository);
     const { id } = request.params;
-    let budgets;
+    let budget;
+    let _budget;
 
     try {
-      budgets = await budgetRepository.findOne({
+      budget = await budgetRepository.findOne({
         where: { id },
       });
+      _budget = getBudget(budget as Budget);
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(budgets);
+    return response.json(_budget);
   }
 
   async deletById(
@@ -64,13 +75,26 @@ export default class BudgetController {
     const budgetRepository = getCustomRepository(BudgetRepository);
     const data = request.body;
     let budget;
+    let err;
 
     try {
+      if (!data.year) {
+        err = 'Year is required';
+        throw new Error('Year is required' as any);
+      } else {
+        budget = await budgetRepository.findOne({
+          where: { year: data.year },
+        });
+        if (budget) {
+          err = 'Year already exists';
+          throw new Error('Year already exists' as any);
+        }
+      }
+
       budget = await budgetRepository.create(data);
       await budgetRepository.save(budget);
     } catch (error) {
-      console.log(error);
-      return response.json(error);
+      return response.status(400).json({ Error: err });
     }
 
     return response.json(budget);

@@ -9,6 +9,12 @@ import {
 import { Budget } from './Budget';
 import { Entry } from './Entry';
 
+export enum TypeRole {
+  CLOSED = 'closed',
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+}
+
 @Entity('balance')
 class Balance {
   @PrimaryGeneratedColumn('uuid')
@@ -16,6 +22,13 @@ class Balance {
 
   @Column()
   month!: number;
+
+  @Column({
+    type: 'enum',
+    enum: TypeRole,
+    default: TypeRole.PENDING,
+  })
+  status!: TypeRole;
 
   @Column()
   created_at!: Date;
@@ -30,7 +43,7 @@ class Balance {
   @OneToMany(() => Entry, entry => entry.balance, {
     eager: true,
   })
-  entry: Entry;
+  entries: Entry[];
 }
 
 export { Balance };

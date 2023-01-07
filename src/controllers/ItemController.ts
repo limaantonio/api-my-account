@@ -3,6 +3,7 @@ import ItemRepository from '../respositories/ItemRepository';
 import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
+import EntryRepository from '../respositories/EntryRepository';
 
 export default class ItemController {
   async listAll(request: Request, response: Response): Promise<Response<Item>> {
@@ -39,22 +40,25 @@ export default class ItemController {
   }
 
   async create(request: Request, response: Response): Promise<Response<Item>> {
-    const budgetRepository = getCustomRepository(BudgetRepository);
     const itemRepository = getCustomRepository(ItemRepository);
+    const entryRepository = getCustomRepository(EntryRepository);
     const data = request.body;
 
     let item;
-    let budget;
+    let err;
 
     try {
-      budget = await budgetRepository.findOne({
-        where: { id: data.budget_id },
-      });
+      if (!data.entry_id) {
+        err = 'entry_id is required';
+        throw new Error(err) as never;
+      } else {
+        let entry = await entryRepository.findOne(data.entry_id);
+        item = await itemRepository.create({
+          ...data,
+          entry,
+        });
+      }
 
-      item = await itemRepository.create({
-        ...data,
-        budget,
-      });
       await itemRepository.save(item);
     } catch (error) {
       console.log(error);
