@@ -21,21 +21,30 @@ function getResult(balance: Balance) {
 
   balance.entries.forEach(entry => {
     if (entry.account.type === TypeRole.INCOME) {
-      entry.items.forEach(element => {
-        income += Number(element.amount);
-      });
+      getAmount(balance, TypeRole.INCOME);
     }
   });
 
   balance.entries.filter(entry => {
     if (entry.account.type === TypeRole.EXPENSE) {
-      entry.items.forEach(element => {
-        expense += Number(element.amount);
-      });
+      getAmount(balance, TypeRole.EXPENSE);
     }
   });
 
   return income - expense;
 }
 
-export { getAmount, getResult };
+function getBalance(balance: Balance) {
+  const incomes = getAmount(balance, TypeRole.INCOME);
+  const expense = getAmount(balance, TypeRole.EXPENSE);
+  const result = getResult(balance);
+
+  return {
+    incomes,
+    expense,
+    result,
+    balance,
+  };
+}
+
+export { getAmount, getResult, getBalance };

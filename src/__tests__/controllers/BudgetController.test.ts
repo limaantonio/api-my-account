@@ -11,6 +11,7 @@ describe('Test the endpoints of the BudgetController', () => {
       });
     expect(200).toBe(200);
   });
+
   test('should return a 400 status code', async () => {
     request(await routes)
       .post('/budget')

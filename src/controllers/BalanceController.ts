@@ -3,7 +3,14 @@ import BalanceRepository from '../respositories/BalanceRepository';
 import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { getResult } from '../services/BalanceService';
+import { getAmount, getBalance, getResult } from '../services/BalanceService';
+
+interface IBalance {
+  incomes: number;
+  expense: number;
+  result: number;
+  balance: Balance;
+}
 
 export default class BalanceController {
   async listAll(
@@ -14,12 +21,17 @@ export default class BalanceController {
     let balances = [];
     try {
       balances = await balanceRepository.find();
+      var totalBalance = [] as IBalance[];
+
+      balances.forEach(balance => {
+        totalBalance.push(getBalance(balance as Balance));
+      });
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(balances);
+    return response.json(totalBalance);
   }
 
   async listById(
@@ -28,20 +40,18 @@ export default class BalanceController {
   ): Promise<Response<Balance>> {
     const balanceRepository = getCustomRepository(BalanceRepository);
     const { id } = request.params;
-    let balances;
+    let balance;
 
     try {
-      balances = await balanceRepository.findOne({
+      balance = await balanceRepository.findOne({
         where: { id },
       });
-
-      getResult(balances as Balance);
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(balances);
+    return response.json(getBalance(balance as Balance));
   }
 
   async create(

@@ -40,8 +40,8 @@ class Entry {
   })
   items: Item[];
 
-  @OneToOne(() => Account, account => account.entry, {
-    eager: true,
+  @ManyToOne(() => Account, account => account.entry, {
+    lazy: true,
   })
   @JoinColumn({ name: 'account_id' })
   account: Account;

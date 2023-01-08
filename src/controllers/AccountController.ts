@@ -3,6 +3,12 @@ import AccountRepository from '../respositories/AccountRepository';
 import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
+import { verifyAmountBalance } from '../services/AccountService';
+
+interface IResquestAccount {
+  amount: number;
+  account: Account;
+}
 
 export default class AccountController {
   async listAll(
@@ -11,14 +17,18 @@ export default class AccountController {
   ): Promise<Response<Account>> {
     const accountRepository = getCustomRepository(AccountRepository);
     let accounts = [];
+    let result;
+
     try {
       accounts = await accountRepository.find();
+
+      result = verifyAmountBalance(accounts);
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(accounts);
+    return response.json(result);
   }
 
   async listById(
