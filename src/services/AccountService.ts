@@ -2,13 +2,15 @@ import { Account } from '../entities/Account';
 
 function verifyAmountBalance(accounts: Account[]) {
   let balance;
-  let result;
+  let result = [];
   accounts.forEach(account => {
     balance = getAvailableValue(account);
-    result = {
-      balance,
-      accounts,
-    };
+    result.push(
+      {
+        balance,
+        account
+      }
+    )
   });
 
   return result;
