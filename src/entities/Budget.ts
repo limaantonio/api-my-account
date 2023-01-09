@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Account } from './Account';
-import { Balance } from './Balance';
 
 @Entity('budget')
 class Budget {
@@ -15,9 +14,6 @@ class Budget {
 
   @Column()
   updated_at!: Date;
-
-  @OneToMany(() => Balance, balance => balance.budget)
-  balance: Balance;
 
   @OneToMany(() => Account, account => account.budget, {
     eager: true,

@@ -1,9 +1,9 @@
 import { Entry } from '../entities/Entry';
 import EntryRepository from '../respositories/EntryRepository';
-import BalanceRepository from '../respositories/BalanceRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import AccountRepository from '../respositories/AccountRepository';
+import { getItemsAmount } from '../services/ItemsService';
 
 export default class EntryController {
   async listAll(
@@ -12,14 +12,20 @@ export default class EntryController {
   ): Promise<Response<Entry>> {
     const entryRepository = getCustomRepository(EntryRepository);
     let entrys = [];
+    let result = [];
+    let amount;
     try {
       entrys = await entryRepository.find();
+      entrys.forEach(entry => {
+        amount = getItemsAmount(entry);
+        result.push({ ...entry, amount });
+      });
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(entrys);
+    return response.json(result);
   }
 
   async listById(
@@ -43,30 +49,19 @@ export default class EntryController {
   }
 
   async create(request: Request, response: Response): Promise<Response<Entry>> {
-    const balanceRepository = getCustomRepository(BalanceRepository);
     const accountRepository = getCustomRepository(AccountRepository);
     const entryRepository = getCustomRepository(EntryRepository);
     const data = request.body;
 
     let entry;
-    let balance;
     let account;
     let err;
 
     try {
-      if (!data.balance_id) {
-        err = 'Balance is required';
-        throw new Error(err) as never;
-      }
-
       if (!data.account_id) {
         err = 'Account is required';
         throw new Error(err) as never;
       }
-
-      balance = await balanceRepository.findOne({
-        where: { id: data.balance_id },
-      });
 
       account = await accountRepository.findOne({
         where: { id: data.account_id },
@@ -74,7 +69,6 @@ export default class EntryController {
 
       entry = await entryRepository.create({
         ...data,
-        balance,
         account,
       });
 
@@ -114,7 +108,6 @@ export default class EntryController {
       await entryRepository.update(id, {
         description: data.description ? data.description : entry?.description,
         installment: data.installment ? data.installment : entry?.installment,
-        balance: data.balance ? data.balance : entry?.balance,
         updated_at: new Date(),
       });
     } catch (error) {

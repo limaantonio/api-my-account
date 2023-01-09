@@ -1,14 +1,12 @@
 import { Router } from 'express';
 import BudgetController from './controllers/BudgetController';
 import AccountController from './controllers/AccountController';
-import BalanceController from './controllers/BalanceController';
 import EntryController from './controllers/EntryController';
 import ItemController from './controllers/ItemController';
 
 const routes = Router();
 const budgetController = new BudgetController();
 const accountController = new AccountController();
-const balanceController = new BalanceController();
 const entryController = new EntryController();
 const itemController = new ItemController();
 
@@ -23,12 +21,6 @@ routes.get('/account/:id/', accountController.listById);
 routes.post('/account', accountController.create);
 routes.put('/account/:id/', accountController.update);
 routes.delete('/account/:id/', accountController.deletById);
-
-routes.get('/balance', balanceController.listAll);
-routes.get('/balance/:id/', balanceController.listById);
-routes.post('/balance', balanceController.create);
-routes.put('/balance/:id/', balanceController.update);
-routes.delete('/balance/:id/', balanceController.deletById);
 
 routes.get('/entry', entryController.listAll);
 routes.get('/entry/:id/', entryController.listById);

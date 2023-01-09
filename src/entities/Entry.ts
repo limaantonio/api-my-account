@@ -8,8 +8,13 @@ import {
   OneToOne,
 } from 'typeorm';
 import { Account } from './Account';
-import { Balance } from './Balance';
 import { Item } from './Item';
+
+export enum TypeRole {
+  PENDING = 'PENDING',
+  CLOSED = 'CLOSED',
+  IN_PROGRESS = 'IN_PROGRESS',
+}
 
 @Entity('entry')
 class Entry {
@@ -23,17 +28,16 @@ class Entry {
   installment!: number;
 
   @Column()
-  balance_id!: string;
+  month!: number;
+
+  @Column()
+  status!: TypeRole.PENDING;
 
   @Column()
   created_at!: Date;
 
   @Column()
   updated_at!: Date;
-
-  @ManyToOne(() => Balance, balance => balance.entries)
-  @JoinColumn({ name: 'balance_id' })
-  balance: Balance;
 
   @OneToMany(() => Item, item => item.entry, {
     eager: true,
@@ -45,6 +49,8 @@ class Entry {
   })
   @JoinColumn({ name: 'account_id' })
   account: Account;
+
+  amount: Number;
 }
 
 export { Entry };

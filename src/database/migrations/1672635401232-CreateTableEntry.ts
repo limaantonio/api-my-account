@@ -24,8 +24,14 @@ export class CreateTableEntry1672635401232 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'balance_id',
-            type: 'uuid',
+            name: 'month',
+            type: 'integer',
+          },
+          {
+            name: 'status',
+            type: 'enum',
+            enum: ['CLOSED', 'IN_PROGRESS', 'PENDING'],
+            default: "'PENDING'",
           },
           {
             name: 'account_id',
@@ -43,14 +49,6 @@ export class CreateTableEntry1672635401232 implements MigrationInterface {
           },
         ],
         foreignKeys: [
-          {
-            name: 'FKBalance',
-            referencedTableName: 'balance',
-            referencedColumnNames: ['id'],
-            columnNames: ['balance_id'],
-            onDelete: 'CASCADE',
-            onUpdate: 'CASCADE',
-          },
           {
             name: 'FKAccount',
             referencedTableName: 'account',
