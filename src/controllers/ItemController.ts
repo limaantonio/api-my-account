@@ -55,37 +55,40 @@ export default class ItemController {
     const data = request.body;
     let item;
     let err;
+    let _entry;
+    let newEntry;
 
     try {
-      if (!data.entry_id) {
-        err = 'entry_id is required';
-        throw new Error(err) as never;
-      } else {
-        const _entry = await entryRepository.findOne(data.entry_id);
+      const account = await accountRepository.findOne(data.entry.account_id);
+      _entry = await entryRepository.create({
+        ...data.entry,
+        account,
+      });
+      newEntry = await entryRepository.save(_entry);
 
-        const accounts = await accountRepository.find();
+      const accounts = await accountRepository.find();
 
-        accounts.forEach(account => {
-          account.entry.forEach(entry => {
-            if (entry.id === _entry?.id) {
-              const available = getAvailableValue(account as Account);
-              if (
-                available.available_value < data.amount &&
-                account?.type === 'EXPENSE'
-              ) {
-                err = 'Insufficient funds';
-                throw new Error(err) as never;
-              }
+      accounts.forEach(account => {
+        account.entry.forEach(entry => {
+          if (entry.id === newEntry?.id) {
+            const available = getAvailableValue(account as Account);
+            if (
+              available.available_value < data.amount &&
+              account?.type === 'EXPENSE'
+            ) {
+              err = 'Insufficient funds';
+              throw new Error(err) as never;
             }
-          });
+          }
         });
+      });
+      data.items.forEach(async item => {
         item = await itemRepository.create({
-          ...data,
-          _entry,
+          ...item,
+          entry: newEntry,
         });
-      }
-
-      await itemRepository.save(item);
+        await itemRepository.save(item);
+      });
     } catch (error) {
       console.log(error);
       return response.json({ Error: err });

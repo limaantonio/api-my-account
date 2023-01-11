@@ -1,6 +1,6 @@
 import { Entry } from '../entities/Entry';
 import EntryRepository from '../respositories/EntryRepository';
-import { Request, Response } from 'express';
+import { query, Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import AccountRepository from '../respositories/AccountRepository';
 import { getItemsAmount } from '../services/ItemsService';
@@ -15,17 +15,31 @@ export default class EntryController {
     let result = [];
     let amount;
     try {
-      entrys = await entryRepository.find();
-      entrys.forEach(entry => {
-        amount = getItemsAmount(entry);
-        result.push({ ...entry, amount });
-      });
+      if (request.query.account && !request.query.month) {
+        entrys = await entryRepository.query(
+          `
+        SELECT e.id as entry_id, a.id as account_id, * FROM entry e 
+        INNER JOIN account a 
+        ON e.account_id = a.id 
+        WHERE e.month = $1 AND a.id = $2`,
+          [`${request.query.month}`, `${request.query.account}`],
+        );
+      } else if (request.query.month) {
+        entrys = await entryRepository.find({
+          where: { month: request.query.month },
+        });
+      }
+
+      // entrys.forEach(entry => {
+      //   amount = getItemsAmount(entry);
+      //   result.push({ ...entry, amount });
+      // });
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(result);
+    return response.json(entrys);
   }
 
   async listById(

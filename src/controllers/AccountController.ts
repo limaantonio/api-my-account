@@ -4,7 +4,6 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { verifyAmountBalance } from '../services/AccountService';
-import { getItemsAmount } from '../services/ItemsService';
 
 interface IResquestAccount {
   amount: number;
@@ -43,10 +42,6 @@ export default class AccountController {
     try {
       accounts = await accountRepository.findOne({
         where: { id },
-      });
-
-      accounts?.entry.forEach(entry => {
-        entry.amount = getItemsAmount(entry);
       });
     } catch (error) {
       console.log(error);
