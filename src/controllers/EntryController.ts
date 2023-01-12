@@ -15,19 +15,195 @@ export default class EntryController {
     let result = [];
     let amount;
     try {
-      if (request.query.account && !request.query.month) {
+      if (request.query.account && request.query.month) {
         entrys = await entryRepository.query(
           `
-        SELECT e.id as entry_id, a.id as account_id, * FROM entry e 
-        INNER JOIN account a 
-        ON e.account_id = a.id 
-        WHERE e.month = $1 AND a.id = $2`,
+            SELECT row_to_json(account)  as account_entries
+            FROM (
+              SELECT 
+                account.id,
+                account.name,
+                account.type,
+                account.sub_account,
+                account.amount,
+                (
+                  SELECT json_agg(entry)
+                  FROM (
+                    SELECT
+                      entry.id,
+                      entry.description,
+                      entry.installment,
+                      entry.month,
+                      entry.status,
+                      (
+                        SELECT json_agg(item)
+                        FROM (
+                          SELECT
+                            item.*
+                          FROM
+                            item
+                          WHERE
+                            item.entry_id = entry.id
+                        ) item
+                      ) as item,
+                      (
+                        SELECT
+                          sum(item.amount) as amount
+                        FROM
+                        item
+                        WHERE
+                        item.entry_id = entry.id
+                      ) as amount
+                    FROM entry
+                    WHERE entry.account_id = account.id AND entry.month = $1
+                  ) entry
+                ) as entry
+              FROM account
+              WHERE account.id = $2
+            ) account`,
           [`${request.query.month}`, `${request.query.account}`],
         );
       } else if (request.query.month) {
-        entrys = await entryRepository.find({
-          where: { month: request.query.month },
-        });
+        entrys = await entryRepository.query(
+          `
+            SELECT row_to_json(account)  as account_entries
+            FROM (
+              SELECT 
+                account.id,
+                account.name,
+                account.type,
+                account.sub_account,
+                account.amount,
+                (
+                  SELECT json_agg(entry)
+                  FROM (
+                    SELECT
+                      entry.id,
+                      entry.description,
+                      entry.installment,
+                      entry.month,
+                      entry.status,
+                      (
+                        SELECT json_agg(item)
+                        FROM (
+                          SELECT
+                            item.*
+                          FROM
+                            item
+                          WHERE
+                            item.entry_id = entry.id
+                        ) item
+                      ) as item,
+                      (
+                        SELECT
+                          sum(item.amount) as amount
+                        FROM
+                        item
+                        WHERE
+                        item.entry_id = entry.id
+                      ) as amount
+                    FROM entry
+                    WHERE entry.account_id = account.id AND entry.month = $1
+                  ) entry
+                ) as entry
+              FROM account
+            ) account`,
+          [`${request.query.month}`],
+        );
+      } else if (request.query.account) {
+        entrys = await entryRepository.query(
+          `
+            SELECT row_to_json(account)  as account_entries
+            FROM (
+              SELECT 
+                account.id,
+                account.name,
+                account.type,
+                account.sub_account,
+                account.amount,
+                (
+                  SELECT json_agg(entry)
+                  FROM (
+                    SELECT
+                      entry.id,
+                      entry.description,
+                      entry.installment,
+                      entry.month,
+                      entry.status,
+                      (
+                        SELECT json_agg(item)
+                        FROM (
+                          SELECT
+                            item.*
+                          FROM
+                            item
+                          WHERE
+                            item.entry_id = entry.id
+                        ) item
+                      ) as item,
+                      (
+                        SELECT
+                          sum(item.amount) as amount
+                        FROM
+                        item
+                        WHERE
+                        item.entry_id = entry.id
+                      ) as amount
+                    FROM entry
+                    WHERE entry.account_id = account.id
+                  ) entry
+                ) as entry
+              FROM account
+              WHERE account.id = $1
+            ) account`,
+          [`${request.query.account}`],
+        );
+      } else {
+        entrys = await entryRepository.query(
+          `
+              SELECT row_to_json(account)  as account_entries
+              FROM (
+                SELECT 
+                  account.id,
+                  account.name,
+                  account.type,
+                  account.sub_account,
+                  account.amount,
+                  (
+                    SELECT json_agg(entry)
+                    FROM (
+                      SELECT
+                        entry.id,
+                        entry.description,
+                        entry.installment,
+                        entry.month,
+                        entry.status,
+                        (
+                          SELECT json_agg(item)
+                          FROM (
+                            SELECT
+                              item.*
+                            FROM
+                              item
+                            WHERE
+                              item.entry_id = entry.id
+                          ) item
+                        ) as item,
+                        (
+                          SELECT
+                            sum(item.amount) as amount
+                          FROM
+                          item
+                          WHERE
+                          item.entry_id = entry.id
+                        ) as amount
+                      FROM entry
+                      WHERE entry.account_id = account.id
+                    ) entry
+                  ) as entry
+                FROM account
+              ) account`,
+        );
       }
 
       // entrys.forEach(entry => {
