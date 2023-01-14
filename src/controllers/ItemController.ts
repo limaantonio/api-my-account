@@ -66,32 +66,27 @@ export default class ItemController {
       });
       newEntry = await entryRepository.save(_entry);
 
-      const accounts = await accountRepository.find();
-
-      accounts.forEach(account => {
-        account.entry.forEach(entry => {
-          if (entry.id === newEntry?.id) {
-            const available = getAvailableValue(account as Account);
-            if (
-              available.available_value < data.amount &&
-              account?.type === 'EXPENSE'
-            ) {
-              err = 'Insufficient funds';
-              throw new Error(err) as never;
-            }
-          }
-        });
-      });
+      let value = 0;
       data.items.forEach(async item => {
-        item = await itemRepository.create({
-          ...item,
-          entry: newEntry,
-        });
-        await itemRepository.save(item);
+        value += item.amount;
+      });
+
+      data.items.forEach(async item => {
+        if (account?.type === 'EXPENSE') {
+          if (value > getAvailableValue(account).available_value) {
+            err = 'Insufficient funds';
+            await entryRepository.delete(newEntry.id);
+          } else {
+            item = await itemRepository.create({
+              ...item,
+              entry: newEntry,
+            });
+            await itemRepository.save(item);
+          }
+        }
       });
     } catch (error) {
-      console.log(error);
-      return response.json({ Error: err });
+      return response.status(400).json(error);
     }
     return response.json(item);
   }

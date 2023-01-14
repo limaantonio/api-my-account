@@ -17,10 +17,12 @@ export enum TypeRole {
   RETIREMENT = 'aposentadoria',
   FAMILY_FUND = 'fundos familiares',
   INVESTIMENT = 'investimento',
+  ECONOMY = 'economia',
   INVESTIMENT_OTHER = 'investimento outros',
   CURRENT_EXPENSES = 'despesas correntes',
+  OLD_EXPENSES = 'despesas antigas',
   CURRENT_EXPENSES_OTHER = 'despesas correntes outros',
-  INTEREST_AND_CHARGES = 'juros e encargos',
+  TAX_FESS = 'taxas e impostos',
   OTHER = 'outros',
 }
 

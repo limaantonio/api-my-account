@@ -16,19 +16,35 @@ export default class AccountController {
     response: Response,
   ): Promise<Response<Account>> {
     const accountRepository = getCustomRepository(AccountRepository);
-    let accounts = [];
-    let result;
+    let _accounts = [];
+    let accounts;
+    let _result;
+    let income = 0;
+    let expense = 0;
 
     try {
-      accounts = await accountRepository.find();
+      _accounts = await accountRepository.find();
 
-      result = verifyAmountBalance(accounts);
+      accounts = verifyAmountBalance(_accounts);
+      _accounts?.map(account => {
+        if (account.type === 'INCOME') {
+          income += Number(account.amount);
+        } else {
+          expense += Number(account.amount);
+        }
+      });
+
+      _result = {
+        income,
+        expense,
+        accounts,
+      };
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(result);
+    return response.json(_result);
   }
 
   async listById(
@@ -82,6 +98,45 @@ export default class AccountController {
         budget,
       });
       await accountRepository.save(account);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(account);
+  }
+
+  async createAll(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const budgetRepository = getCustomRepository(BudgetRepository);
+    const accountRepository = getCustomRepository(AccountRepository);
+    const datas = request.body;
+
+    let account;
+    let budget;
+    let err;
+
+    try {
+      datas.map(async data => {
+        if (!data.budget_id) {
+          err = 'Budget is required';
+          throw new Error(err as any);
+        }
+
+        budget = await budgetRepository.findOne(data.budget_id);
+
+        account = await accountRepository.create({
+          name: data.name,
+          amount: data.amount,
+          sub_account: data.sub_account,
+          type: data.type,
+          number_of_installments: data.number_of_installments,
+          budget,
+        });
+        await accountRepository.save(account);
+      });
     } catch (error) {
       console.log(error);
       return response.json(error);

@@ -4,6 +4,7 @@ import { query, Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import AccountRepository from '../respositories/AccountRepository';
 import { getItemsAmount } from '../services/ItemsService';
+import { getAvailableValue } from '../services/AccountService';
 
 export default class EntryController {
   async listAll(
@@ -14,6 +15,8 @@ export default class EntryController {
     let entrys = [];
     let result = [];
     let amount;
+    let income = 0;
+    let expense = 0;
     try {
       if (request.query.account && request.query.month) {
         entrys = await entryRepository.query(
@@ -206,6 +209,22 @@ export default class EntryController {
         );
       }
 
+      entrys?.map(account => {
+        account?.account_entries?.entry?.map(entry => {
+          if (account?.account_entries?.type === 'INCOME') {
+            income += Number(entry.amount);
+          } else {
+            expense += Number(entry.amount);
+          }
+        });
+      });
+
+      result = {
+        income,
+        expense,
+        entrys,
+      };
+
       // entrys.forEach(entry => {
       //   amount = getItemsAmount(entry);
       //   result.push({ ...entry, amount });
@@ -215,7 +234,7 @@ export default class EntryController {
       return response.json(error);
     }
 
-    return response.json(entrys);
+    return response.json(result);
   }
 
   async listById(
@@ -298,6 +317,8 @@ export default class EntryController {
       await entryRepository.update(id, {
         description: data.description ? data.description : entry?.description,
         installment: data.installment ? data.installment : entry?.installment,
+        status: data.status ? data.status : entry?.status,
+        month: data.month ? data.month : entry?.month,
         updated_at: new Date(),
       });
     } catch (error) {
@@ -306,5 +327,21 @@ export default class EntryController {
     }
 
     return response.status(204).json(entry);
+  }
+
+  async pay(request: Request, response: Response): Promise<Response<Entry>> {
+    const entryRepository = getCustomRepository(EntryRepository);
+    const { id } = request.params;
+
+    try {
+      await entryRepository.update(id, {
+        status: 'CLOSED',
+        updated_at: new Date(),
+      });
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+    return response.status(204).json({ message: 'Entry paid' });
   }
 }

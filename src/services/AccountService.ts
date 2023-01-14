@@ -5,12 +5,10 @@ function verifyAmountBalance(accounts: Account[]) {
   let result = [];
   accounts.forEach(account => {
     balance = getAvailableValue(account);
-    result.push(
-      {
-        balance,
-        account
-      }
-    )
+    result.push({
+      balance,
+      account,
+    });
   });
 
   return result;
@@ -34,9 +32,10 @@ function getAvailableValue(account: Account) {
     }
     entry.items.forEach(item => {
       values.used_value += Number(item.amount);
-      _available_value -= Number(item.amount);
+
       values.available_value = _available_value;
     });
+    values.available_value = account.amount - values.used_value;
   });
   return values;
 }
