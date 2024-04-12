@@ -16,11 +16,7 @@ export default class BudgetController {
 
     try {
       budgets = await budgetRepository.find();
-      let _budget;
-      budgets.forEach(budget => {
-        _budget = getBudget(budget);
-      });
-      totalBudgets.push(_budget);
+      totalBudgets = budgets.map(budget => getBudget(budget));
     } catch (error) {
       console.log(error);
       return response.json(error);
