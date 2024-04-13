@@ -4,6 +4,8 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { verifyAmountBalance } from '../services/AccountService';
+import {Entry} from '../entities/Entry'
+import EntryRepository from '../respositories/EntryRepository'
 
 interface IResquestAccount {
   amount: number;
@@ -23,7 +25,9 @@ export default class AccountController {
     let expense = 0;
 
     try {
-      _accounts = await accountRepository.find();
+      _accounts = await accountRepository.find({
+        relations: ['entry'],
+      });
 
       accounts = verifyAmountBalance(_accounts);
       _accounts?.map(account => {
@@ -52,12 +56,14 @@ export default class AccountController {
     response: Response,
   ): Promise<Response<Account>> {
     const accountRepository = getCustomRepository(AccountRepository);
+    const entryRepository = getCustomRepository(EntryRepository);
     const { id } = request.params;
     let accounts;
 
     try {
       accounts = await accountRepository.findOne({
         where: { id },
+        relations: ['entry'],
       });
     } catch (error) {
       console.log(error);
@@ -66,6 +72,58 @@ export default class AccountController {
 
     return response.json(accounts);
   }
+
+  async listByBudgetId(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    const { id } = request.params;
+    let _accounts;
+    let accounts;
+    
+    try {
+      _accounts = await accountRepository.find({
+        where: { budget_id: id },
+        relations: [ 'entry'],
+      });
+
+
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    let _result;
+    let income = 0;
+    let expense = 0;
+
+    try {
+
+      accounts = verifyAmountBalance(_accounts);
+      _accounts?.map(account => {
+        if (account.type === 'INCOME') {
+          income += Number(account.amount);
+        } else {
+          expense += Number(account.amount);
+        }
+      });
+
+      _result = {
+        income,
+        expense,
+        accounts,
+      };
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(_result);
+
+  }
+
+  
 
   async create(
     request: Request,

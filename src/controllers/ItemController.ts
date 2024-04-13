@@ -48,48 +48,57 @@ export default class ItemController {
     return response.json(items);
   }
 
-  async create(request: Request, response: Response): Promise<Response<Item>> {
+  async create(request: Request, response: Response): Promise<Response<Item[]>> {
     const itemRepository = getCustomRepository(ItemRepository);
     const entryRepository = getCustomRepository(EntryRepository);
     const accountRepository = getCustomRepository(AccountRepository);
     const data = request.body;
-    let item;
+    let createdItems: Item[] = [];
     let err;
-    let _entry;
-    let newEntry;
-
+  
     try {
-      const account = await accountRepository.findOne(data.entry.account_id);
-      _entry = await entryRepository.create({
+      const account = await accountRepository.findOne({
+        where: { id: data.entry.account?.id },
+        relations: ['entry'],
+      });
+
+
+      const newEntry = await entryRepository.create({
         ...data.entry,
         account,
       });
-      newEntry = await entryRepository.save(_entry);
-
+      const savedEntry = await entryRepository.save(newEntry);
+  
       let value = 0;
-      data.items.forEach(async item => {
-        value += item.amount;
-      });
-
-      data.items.forEach(async item => {
-        if (account?.type === 'EXPENSE') {
-          if (value > getAvailableValue(account).available_value) {
-            err = 'Insufficient funds';
-            await entryRepository.delete(newEntry.id);
-          } else {
-            item = await itemRepository.create({
-              ...item,
-              entry: newEntry,
-            });
-            await itemRepository.save(item);
-          }
+      for (const itemData of data.items) {
+        value += itemData.amount;
+      }
+  
+      if (account?.type === 'EXPENSE' && value > getAvailableValue(account).available_value) {
+        err = 'Insufficient funds';
+        await entryRepository.delete(savedEntry.id);
+      } else {
+        for (const itemData of data.items) {
+          const item = await itemRepository.create({
+            ...itemData,
+            entry: savedEntry,
+          });
+          const savedItem = await itemRepository.save(item);
+          createdItems.push(savedItem);
         }
-      });
+      }
     } catch (error) {
-      return response.status(400).json(error);
+      console.error('Error:', error);
+      return response.status(500).json({ error: 'Internal Server Error' });
     }
-    return response.json(item);
+  
+    if (err) {
+      return response.status(400).json({ error: err });
+    } else {
+      return response.json(createdItems);
+    }
   }
+  
 
   async update(request: Request, response: Response): Promise<Response<Item>> {
     const itemRepository = getCustomRepository(ItemRepository);

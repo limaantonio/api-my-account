@@ -34,6 +34,9 @@ class Entry {
   status!: TypeRole.PENDING;
 
   @Column()
+  account_id!: string;
+
+  @Column()
   created_at!: Date;
 
   @Column()
@@ -49,8 +52,6 @@ class Entry {
   })
   @JoinColumn({ name: 'account_id' })
   account: Account;
-
-  amount: Number;
 }
 
 export { Entry };

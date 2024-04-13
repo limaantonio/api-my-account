@@ -248,6 +248,7 @@ export default class EntryController {
     try {
       entrys = await entryRepository.findOne({
         where: { id },
+        relations: ['account'],
       });
     } catch (error) {
       console.log(error);
@@ -255,6 +256,57 @@ export default class EntryController {
     }
 
     return response.json(entrys);
+  }
+
+  async listByAccountId(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Entry>> {
+    const entryRepository = getCustomRepository(EntryRepository);
+    const accountRepository = getCustomRepository(AccountRepository);
+    const { id } = request.params;
+    let entrys;
+    let account;
+    let result;
+    let _entry;
+    let amount;
+    let entries = []
+
+    try {
+      account = await accountRepository.findOne({
+        where: { id },
+        eager: false
+      });
+
+      entrys = await entryRepository.find({
+        where: { account_id: id },
+      });
+
+      let entry_amount ;
+
+      entrys?.map(entry => {
+        entry_amount = getItemsAmount(entry);
+        _entry = { entry_amount, ...entry};
+        entry = {
+          _entry
+        }
+        entries.push(_entry);
+      
+
+      });
+
+      result = {
+        account,
+        entries
+      };
+
+      
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(result);
   }
 
   async create(request: Request, response: Response): Promise<Response<Entry>> {

@@ -22,6 +22,7 @@ routes.post('/account', accountController.create);
 routes.put('/account/:id/', accountController.update);
 routes.delete('/account/:id/', accountController.deletById);
 routes.post('/accounts', accountController.createAll);
+routes.get('/account/budget/:id/', accountController.listByBudgetId);
 
 routes.get('/entry', entryController.listAll);
 routes.get('/entry/:id/', entryController.listById);
@@ -29,6 +30,7 @@ routes.post('/entry', entryController.create);
 routes.put('/entry/:id/', entryController.update);
 routes.delete('/entry/:id/', entryController.deletById);
 routes.post('/entry/:id/', entryController.pay);
+routes.get('/entry/account/:id/', entryController.listByAccountId);
 
 routes.get('/item', itemController.listAll);
 routes.get('/item/:id/', itemController.listById);

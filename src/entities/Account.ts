@@ -72,9 +72,7 @@ class Account {
   @JoinColumn({ name: 'budget_id' })
   budget: Budget;
 
-  @OneToMany(() => Entry, entry => entry.account, {
-    eager: true,
-  })
+  @OneToMany(() => Entry, entry => entry.account)
   entry: Entry[];
 }
 
