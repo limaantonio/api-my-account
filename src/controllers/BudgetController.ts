@@ -61,7 +61,7 @@ export default class BudgetController {
       return response.json(error);
     }
 
-    return response.status(204);
+    return response.status(204).send();
   }
 
   async create(

@@ -51,6 +51,50 @@ export default class AccountController {
     return response.json(_result);
   }
 
+  async getBalance(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    const entryRepository = getCustomRepository(EntryRepository);
+    const { id } = request.params;
+    let accounts;
+    let _accounts;
+
+    try {
+      _accounts = await accountRepository.find({
+        where: { id },
+        relations: ['entry'],
+      });
+
+      accounts = verifyAmountBalance(_accounts);
+     
+      let income = 0;
+      let expense = 0;
+
+      accounts = verifyAmountBalance(_accounts);
+      _accounts?.map(account => {
+        if (account.type === 'INCOME') {
+          income += Number(account.amount);
+        } else {
+          expense += Number(account.amount);
+        }
+      });
+
+      let _result = {
+        income,
+        expense
+      };
+
+
+      return response.json(_result);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+  }
+    
+
   async listById(
     request: Request,
     response: Response,
@@ -59,18 +103,23 @@ export default class AccountController {
     const entryRepository = getCustomRepository(EntryRepository);
     const { id } = request.params;
     let accounts;
+    let _accounts;
 
     try {
-      accounts = await accountRepository.findOne({
+      _accounts = await accountRepository.find({
         where: { id },
         relations: ['entry'],
       });
+
+
+
+      accounts = verifyAmountBalance(_accounts);
+
+      return response.json(accounts);
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
-
-    return response.json(accounts);
   }
 
   async listByBudgetId(
@@ -94,7 +143,7 @@ export default class AccountController {
       return response.json(error);
     }
 
-    let _result;
+    let _result = [];
     let income = 0;
     let expense = 0;
 
@@ -109,17 +158,13 @@ export default class AccountController {
         }
       });
 
-      _result = {
-        income,
-        expense,
-        accounts,
-      };
+     
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(_result);
+    return response.json(accounts);
 
   }
 
@@ -210,13 +255,15 @@ export default class AccountController {
     const accountRepository = getCustomRepository(AccountRepository);
     const { id } = request.params;
 
+    console.log(id)
+
     try {
       await accountRepository.delete(id);
     } catch (error) {
       return response.json(error);
     }
 
-    return response.status(204);
+    return response.status(204).send();
   }
 
   async update(

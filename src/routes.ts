@@ -23,6 +23,7 @@ routes.put('/account/:id/', accountController.update);
 routes.delete('/account/:id/', accountController.deletById);
 routes.post('/accounts', accountController.createAll);
 routes.get('/account/budget/:id/', accountController.listByBudgetId);
+routes.get('/account/balance/:id/', accountController.getBalance);
 
 routes.get('/entry', entryController.listAll);
 routes.get('/entry/:id/', entryController.listById);

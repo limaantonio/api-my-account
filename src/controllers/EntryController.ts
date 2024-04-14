@@ -273,13 +273,10 @@ export default class EntryController {
     let entries = []
 
     try {
-      account = await accountRepository.findOne({
-        where: { id },
-        eager: false
-      });
-
+      
       entrys = await entryRepository.find({
         where: { account_id: id },
+        relations: ['account'],
       });
 
       let entry_amount ;
@@ -294,19 +291,13 @@ export default class EntryController {
       
 
       });
-
-      result = {
-        account,
-        entries
-      };
-
       
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(result);
+    return response.json(entries);
   }
 
   async create(request: Request, response: Response): Promise<Response<Entry>> {
@@ -355,7 +346,7 @@ export default class EntryController {
       return response.json(error);
     }
 
-    return response.status(204);
+    return response.status(204).send();
   }
 
   async update(request: Request, response: Response): Promise<Response<Entry>> {
