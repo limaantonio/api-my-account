@@ -137,6 +137,8 @@ export default class AccountController {
         relations: [ 'entry'],
       });
 
+      console.log(_accounts)
+
 
     } catch (error) {
       console.log(error);
@@ -168,8 +170,6 @@ export default class AccountController {
 
   }
 
-  
-
   async create(
     request: Request,
     response: Response,
@@ -177,36 +177,40 @@ export default class AccountController {
     const budgetRepository = getCustomRepository(BudgetRepository);
     const accountRepository = getCustomRepository(AccountRepository);
     const data = request.body;
+    let createdItems: Account[] = [];
 
     let account;
     let budget;
     let err;
 
     try {
-      if (!data.budget_id) {
-        err = 'Budget is required';
-        throw new Error(err as any);
+
+      budget = await budgetRepository.create({
+        year: data.budget.year,
+      });
+
+      await budgetRepository.save(budget);
+
+      for (const accountData of data.accounts) {
+        account = await accountRepository.create({
+          name: accountData.name,
+          amount: accountData.amount,
+          sub_account: accountData.sub_account,
+          type: accountData.type,
+          number_of_installments: accountData.number_of_installments,
+          budget,
+        });
+        await accountRepository.save(account);
+        createdItems.push(account);
       }
 
-      budget = await budgetRepository.findOne({
-        where: { id: data.budget_id },
-      });
-
-      account = await accountRepository.create({
-        name: data.name,
-        amount: data.amount,
-        sub_account: data.sub_account,
-        type: data.type,
-        number_of_installments: data.number_of_installments,
-        budget,
-      });
-      await accountRepository.save(account);
+      await accountRepository.save(createdItems);
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(account);
+    return response.json(createdItems);
   }
 
   async createAll(

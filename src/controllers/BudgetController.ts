@@ -90,6 +90,7 @@ export default class BudgetController {
       budget = await budgetRepository.create(data);
       await budgetRepository.save(budget);
     } catch (error) {
+      console.log(error);
       return response.status(400).json({ Error: err });
     }
 
