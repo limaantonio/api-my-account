@@ -293,7 +293,16 @@ export default class EntryController {
         relations: ['account'],
       });
 
-      
+      let total = 0;
+      entrys.map(entry => {
+          entry.items.map(item => {
+            total += Number(item.amount);
+          });
+          entry.amount = total;
+          entries.push(entry);
+          total = 0;
+      });
+
     } catch (error) {
       console.log(error);
       return response.json(error);

@@ -3,7 +3,7 @@ import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
 import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { verifyAmountBalance } from '../services/BudgetMonthService';
+import { getBudget, verifyAmountBalance } from '../services/BudgetMonthService';
 import {Entry} from '../entities/Entry'
 import EntryRepository from '../respositories/EntryRepository'
 import { Budget } from '../entities/Budget';
@@ -78,6 +78,31 @@ export default class BudgetMonthController {
     }
 
     return response.status(204).send();
+  }
+
+  async getBalance(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
+    const entryRepository = getCustomRepository(EntryRepository);
+    const { id } = request.params;
+    let _budgetMonth;
+    let _entries;
+
+    try {
+      _budgetMonth = await budgetMonthRepository.findOne({
+        where: { id },
+        relations: ['entries', 'entries.account'],
+      });
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    const balance = getBudget(_budgetMonth)
+
+    return response.json(balance);
   }
 
 }

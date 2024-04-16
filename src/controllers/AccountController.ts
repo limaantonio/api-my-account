@@ -63,7 +63,7 @@ export default class AccountController {
 
     try {
       _accounts = await accountRepository.find({
-        where: { id },
+        where: { budget_id: id},
         relations: ['entry'],
       });
 

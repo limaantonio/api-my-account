@@ -1,43 +1,103 @@
+import { Account, TypeRole } from '../entities/Account';
+import { Budget } from '../entities/Budget';
 import { BudgetMonth } from '../entities/BudgetMonth';
 
-function verifyAmountBalance(budgetMonths: BudgetMonth[]) {
-  let balance;
-  let result = [];
-  budgetMonths.forEach(budgetMonth => {
-    balance = getAvailableValue(budgetMonth);
-    result.push({
-      balance,
-      budgetMonth,
-    });
-  });
-
-  return result;
-}
-
-function getAvailableValue(budgetMonth: BudgetMonth) {
-  let available_value = 0;
-  let used_value = 0;
-
-  const values = { available_value, used_value };
-  if (budgetMonth.entry.length === 0) {
-    available_value = budgetMonth.amount;
-    values.available_value = available_value;
-  }
-  budgetMonth.entry.forEach(entry => {
-    let _available_value = budgetMonth.amount;
-
-    if (entry.items.length === 0) {
-      available_value = budgetMonth.amount;
-      values.available_value = available_value;
+function getTotalAmountIncome(budget: BudgetMonth): Number {
+  let total = 0;
+  budget.entries.forEach(entry => {
+    if (entry.account.type === 'INCOME') {
+      entry.items.map(item => {
+        total += Number(item.amount);
+      });
     }
-    entry.items.forEach(item => {
-      values.used_value += Number(item.amount);
-
-      values.available_value = _available_value;
-    });
-    values.available_value = budgetMonth.amount - values.used_value;
   });
-  return values;
+  return total;
 }
 
-export { verifyAmountBalance, getAvailableValue };
+function getTotalAmountExpense(budget: BudgetMonth): Number {
+  let total = 0;
+  budget.entries.forEach(entry => {
+    if (entry.account.type === 'EXPENSE') {
+      entry.items.map(item => {
+        total += Number(item.amount);
+      });
+    }
+  });
+  return total;
+}
+
+function getSummary(budget: BudgetMonth): number {
+  if (budget.entries.length === 0) {
+    return 0;
+  }
+  return (
+    Number(getTotalAmountIncome(budget)) - Number(getTotalAmountExpense(budget))
+  );
+}
+
+function getTotalIncome(budget: BudgetMonth) {
+  let total = 0;
+  budget.entries.forEach(entry => {
+    if (entry.account.type === 'INCOME') {
+      total++;
+    }
+  });
+  return total;
+}
+
+function getTotalExpanse(budget: BudgetMonth) {
+  let total = 0;
+  budget.entries.forEach(entry => {
+    if (entry.account.type === 'EXPENSE') {
+      total++;
+    }
+  });
+  return total;
+}
+
+function getTotalAccount(budget: BudgetMonth): number {
+  return Number(budget.entries.length);
+}
+
+function getBudgetByType(budget: Budget, type: TypeRole): Account[] {
+  return budget.accounts.filter(account => account.type === type);
+}
+
+function getBudget(budgetMonth: BudgetMonth) {
+  let totalAmount;
+  let _budget;
+  let incomeAmount;
+  let expenseAmount;
+  let totalAccount;
+  let totalIncome;
+  let totalExpense;
+
+  incomeAmount = getTotalAmountIncome(budgetMonth);
+  expenseAmount = getTotalAmountExpense(budgetMonth);
+  totalAmount = getSummary(budgetMonth);
+  totalAccount = getTotalAccount(budgetMonth);
+  totalIncome = getTotalIncome(budgetMonth);
+  totalExpense = getTotalExpanse(budgetMonth);
+
+  _budget = {
+    totalAccount,
+    totalIncome,
+    totalExpense,
+    incomeAmount,
+    expenseAmount,
+    totalAmount,
+    budgetMonth, //se quiser mostrar o balanco do mes completo
+  };
+
+  return _budget;
+}
+
+export {
+  getTotalAmountIncome,
+  getTotalAmountExpense,
+  getSummary,
+  getTotalAccount,
+  getTotalExpanse,
+  getTotalIncome,
+  getBudget, 
+};
