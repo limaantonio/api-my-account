@@ -4,6 +4,8 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { verifyAmountBalance } from '../services/AccountService';
+import {Entry} from '../entities/Entry'
+import EntryRepository from '../respositories/EntryRepository'
 
 interface IResquestAccount {
   amount: number;
@@ -23,7 +25,9 @@ export default class AccountController {
     let expense = 0;
 
     try {
-      _accounts = await accountRepository.find();
+      _accounts = await accountRepository.find({
+        relations: ['entry'],
+      });
 
       accounts = verifyAmountBalance(_accounts);
       _accounts?.map(account => {
@@ -47,24 +51,123 @@ export default class AccountController {
     return response.json(_result);
   }
 
+  async getBalance(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    const entryRepository = getCustomRepository(EntryRepository);
+    const { id } = request.params;
+    let accounts;
+    let _accounts;
+
+    try {
+      _accounts = await accountRepository.find({
+        where: { budget_id: id},
+        relations: ['entry'],
+      });
+
+      accounts = verifyAmountBalance(_accounts);
+     
+      let income = 0;
+      let expense = 0;
+
+      accounts = verifyAmountBalance(_accounts);
+      _accounts?.map(account => {
+        if (account.type === 'INCOME') {
+          income += Number(account.amount);
+        } else {
+          expense += Number(account.amount);
+        }
+      });
+
+      let _result = {
+        income,
+        expense
+      };
+
+
+      return response.json(_result);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+  }
+    
+
   async listById(
     request: Request,
     response: Response,
   ): Promise<Response<Account>> {
     const accountRepository = getCustomRepository(AccountRepository);
+    const entryRepository = getCustomRepository(EntryRepository);
     const { id } = request.params;
     let accounts;
+    let _accounts;
 
     try {
-      accounts = await accountRepository.findOne({
+      _accounts = await accountRepository.find({
         where: { id },
+        relations: ['entry'],
       });
+
+
+
+      accounts = verifyAmountBalance(_accounts);
+
+      return response.json(accounts);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+  }
+
+  async listByBudgetId(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    const { id } = request.params;
+    let _accounts;
+    let accounts;
+    
+    try {
+      _accounts = await accountRepository.find({
+        where: { budget_id: id },
+        relations: [ 'entry'],
+      });
+
+      console.log(_accounts)
+
+
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    let _result = [];
+    let income = 0;
+    let expense = 0;
+
+    try {
+
+      accounts = verifyAmountBalance(_accounts);
+      _accounts?.map(account => {
+        if (account.type === 'INCOME') {
+          income += Number(account.amount);
+        } else {
+          expense += Number(account.amount);
+        }
+      });
+
+     
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
     return response.json(accounts);
+
   }
 
   async create(
@@ -74,36 +177,40 @@ export default class AccountController {
     const budgetRepository = getCustomRepository(BudgetRepository);
     const accountRepository = getCustomRepository(AccountRepository);
     const data = request.body;
+    let createdItems: Account[] = [];
 
     let account;
     let budget;
     let err;
 
     try {
-      if (!data.budget_id) {
-        err = 'Budget is required';
-        throw new Error(err as any);
+
+      budget = await budgetRepository.create({
+        year: data.budget.year,
+      });
+
+      await budgetRepository.save(budget);
+
+      for (const accountData of data.accounts) {
+        account = await accountRepository.create({
+          name: accountData.name,
+          amount: accountData.amount,
+          sub_account: accountData.sub_account,
+          type: accountData.type,
+          number_of_installments: accountData.number_of_installments,
+          budget,
+        });
+        await accountRepository.save(account);
+        createdItems.push(account);
       }
 
-      budget = await budgetRepository.findOne({
-        where: { id: data.budget_id },
-      });
-
-      account = await accountRepository.create({
-        name: data.name,
-        amount: data.amount,
-        sub_account: data.sub_account,
-        type: data.type,
-        number_of_installments: data.number_of_installments,
-        budget,
-      });
-      await accountRepository.save(account);
+      await accountRepository.save(createdItems);
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(account);
+    return response.json(createdItems);
   }
 
   async createAll(
@@ -152,13 +259,15 @@ export default class AccountController {
     const accountRepository = getCustomRepository(AccountRepository);
     const { id } = request.params;
 
+    console.log(id)
+
     try {
       await accountRepository.delete(id);
     } catch (error) {
       return response.json(error);
     }
 
-    return response.status(204);
+    return response.status(204).send();
   }
 
   async update(

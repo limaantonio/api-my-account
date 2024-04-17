@@ -4,14 +4,18 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import EntryRepository from '../respositories/EntryRepository';
-import { getAvailableValue } from '../services/AccountService';
+import { getAvailableValue } from '../services/BudgetMonthService';
 import AccountRepository from '../respositories/AccountRepository';
 import { Account, TypeRole } from '../entities/Account';
 import { Entry } from '../entities/Entry';
+import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
 
 interface IResquestEntry {
   amount: number;
   entry: Entry;
+  budget_month_id: string;
+  account_id: string;
+
 }
 
 export default class ItemController {
@@ -48,48 +52,68 @@ export default class ItemController {
     return response.json(items);
   }
 
-  async create(request: Request, response: Response): Promise<Response<Item>> {
+  async create(request: Request, response: Response): Promise<Response<Item[]>> {
     const itemRepository = getCustomRepository(ItemRepository);
     const entryRepository = getCustomRepository(EntryRepository);
+    const budgetRepository = getCustomRepository(BudgetRepository);
     const accountRepository = getCustomRepository(AccountRepository);
+    const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
     const data = request.body;
-    let item;
+    let createdItems: Item[] = [];
     let err;
-    let _entry;
-    let newEntry;
-
+    let budget_month;
+    let budget;
+  
     try {
-      const account = await accountRepository.findOne(data.entry.account_id);
-      _entry = await entryRepository.create({
+      budget_month = await budgetMonthRepository.findOne({
+        where: { id: data.entry?.budget_month_id },
+      });
+
+      budget = await budgetRepository.findOne({
+        where: { id: budget_month?.budget?.id },
+      });
+
+      const account = await accountRepository.findOne({
+        where: { id: data.entry.account_id },
+      });
+
+      const newEntry = await entryRepository.create({
         ...data.entry,
         account,
+        budget_month,
       });
-      newEntry = await entryRepository.save(_entry);
-
+      const savedEntry = await entryRepository.save(newEntry);
+  
       let value = 0;
-      data.items.forEach(async item => {
-        value += item.amount;
-      });
-
-      data.items.forEach(async item => {
-        if (account?.type === 'EXPENSE') {
-          if (value > getAvailableValue(account).available_value) {
-            err = 'Insufficient funds';
-            await entryRepository.delete(newEntry.id);
-          } else {
-            item = await itemRepository.create({
-              ...item,
-              entry: newEntry,
-            });
-            await itemRepository.save(item);
-          }
+      for (const itemData of data.items) {
+        value += itemData.amount;
+      }
+  
+      if (account?.type === 'EXPENSE' && value > getAvailableValue(account).available_value) {
+        err = 'Insufficient funds';
+        await entryRepository.delete(savedEntry.id);
+      } else {
+        for (const itemData of data.items) {
+          const item = await itemRepository.create({
+            ...itemData,
+            entry: savedEntry,
+          });
+          const savedItem = await itemRepository.save(item);
+          createdItems.push(savedItem);
         }
-      });
+      }
     } catch (error) {
-      return response.status(400).json(error);
+      console.error('Error:', error);
+      return response.status(500).json({ error: 'Internal Server Error' });
     }
-    return response.json(item);
+  
+    if (err) {
+      return response.status(400).json({ error: err });
+    } else {
+      return response.json(createdItems);
+    }
   }
+  
 
   async update(request: Request, response: Response): Promise<Response<Item>> {
     const itemRepository = getCustomRepository(ItemRepository);

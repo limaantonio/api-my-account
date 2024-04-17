@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Account } from './Account';
+import { BudgetMonth } from './BudgetMonth';
 
 @Entity('budget')
 class Budget {
@@ -19,6 +20,12 @@ class Budget {
     eager: true,
   })
   accounts: Account[];
+
+  @OneToMany(() => BudgetMonth, budgetMonth => budgetMonth.budget, {
+    eager: true,
+  })
+  budget_months: BudgetMonth[];
+
 }
 
 export { Budget };

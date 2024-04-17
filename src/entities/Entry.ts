@@ -7,8 +7,9 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
-import { Account } from './Account';
 import { Item } from './Item';
+import { BudgetMonth } from './BudgetMonth';
+import { Account } from './Account';
 
 export enum TypeRole {
   PENDING = 'PENDING',
@@ -28,9 +29,6 @@ class Entry {
   installment!: number;
 
   @Column()
-  month!: number;
-
-  @Column()
   status!: TypeRole.PENDING;
 
   @Column()
@@ -44,13 +42,13 @@ class Entry {
   })
   items: Item[];
 
-  @ManyToOne(() => Account, account => account.entry, {
-    lazy: true,
-  })
+  @ManyToOne(() => BudgetMonth, budget_month => budget_month.entries)
+  @JoinColumn({ name: 'budget_month_id' })
+  budget_month: BudgetMonth;
+
+  @ManyToOne(() => Account)
   @JoinColumn({ name: 'account_id' })
   account: Account;
-
-  amount: Number;
 }
 
 export { Entry };

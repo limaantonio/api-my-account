@@ -1,10 +1,22 @@
-import { Entry } from '../entities/Entry';
+import { Entry, TypeRole } from '../entities/Entry';
 import EntryRepository from '../respositories/EntryRepository';
 import { query, Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import AccountRepository from '../respositories/AccountRepository';
 import { getItemsAmount } from '../services/ItemsService';
-import { getAvailableValue } from '../services/AccountService';
+import { getAvailableValue } from '../services/BudgetMonthService';
+import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
+import { BudgetMonth } from '../entities/BudgetMonth';
+import { Account } from '../entities/Account';
+import BudgetRepository from '../respositories/BudgetRepository';
+
+interface IResquestEntry {
+  description: string;
+  installment: number;
+  status: TypeRole.PENDING;
+  budget_month_id: string;
+  account_id: string;
+}
 
 export default class EntryController {
   async listAll(
@@ -257,37 +269,90 @@ export default class EntryController {
     return response.json(entrys);
   }
 
-  async create(request: Request, response: Response): Promise<Response<Entry>> {
-    const accountRepository = getCustomRepository(AccountRepository);
+  async listByMonthId(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Entry>> {
     const entryRepository = getCustomRepository(EntryRepository);
-    const data = request.body;
-
-    let entry;
+    const monthBudgetRepository = getCustomRepository(BudgetMonthRepository);
+    const { id } = request.params;
+    let entrys;
     let account;
-    let err;
+    let result;
+    let _entry;
+    let monthBudget;
+    let entries = []
 
     try {
-      if (!data.account_id) {
-        err = 'Account is required';
-        throw new Error(err) as never;
-      }
-
-      account = await accountRepository.findOne({
-        where: { id: data.account_id },
+      monthBudget = await monthBudgetRepository.findOne({
+        where: { id },
       });
 
-      entry = await entryRepository.create({
-        ...data,
-        account,
+      entrys = await entryRepository.find({
+        where: { budget_month: monthBudget },
+        relations: ['account'],
       });
 
-      await entryRepository.save(entry);
+      let total = 0;
+      entrys.map(entry => {
+          entry.items.map(item => {
+            total += Number(item.amount);
+          });
+          entry.amount = total;
+          entries.push(entry);
+          total = 0;
+      });
+
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(entry);
+    return response.json(entrys);
+  }
+
+  async create(request: Request, response: Response): Promise<Response<IResquestEntry>> {
+    const entryRepository = getCustomRepository(EntryRepository);
+    const accountRepository = getCustomRepository(AccountRepository);
+    const budgetRepository = getCustomRepository(BudgetRepository);
+    const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
+    const { description, installment, budget_month_id, account_id } = request.body as IResquestEntry;
+    let _entry;
+    let budget;
+    let account;
+    let budget_month;
+
+    try {
+
+      budget_month = await budgetMonthRepository.findOne({
+        where: { id: budget_month_id },
+      });
+
+      budget = await budgetRepository.findOne({
+        where: { id: budget_month?.budget?.id },
+      });
+
+
+      account = await accountRepository.findOne({
+        where: { id: account_id },
+
+      });
+
+      _entry = await entryRepository.create({
+        description,
+        installment,
+        status: 'PENDING',
+        budget_month: budget_month as BudgetMonth,
+        account: account as Account,
+      });
+
+      await entryRepository.save(_entry);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(_entry);
   }
 
   async deletById(

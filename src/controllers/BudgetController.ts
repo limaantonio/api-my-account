@@ -16,11 +16,7 @@ export default class BudgetController {
 
     try {
       budgets = await budgetRepository.find();
-      let _budget;
-      budgets.forEach(budget => {
-        _budget = getBudget(budget);
-      });
-      totalBudgets.push(_budget);
+      totalBudgets = budgets.map(budget => getBudget(budget));
     } catch (error) {
       console.log(error);
       return response.json(error);
@@ -65,7 +61,7 @@ export default class BudgetController {
       return response.json(error);
     }
 
-    return response.status(204);
+    return response.status(204).send();
   }
 
   async create(
@@ -94,6 +90,7 @@ export default class BudgetController {
       budget = await budgetRepository.create(data);
       await budgetRepository.save(budget);
     } catch (error) {
+      console.log(error);
       return response.status(400).json({ Error: err });
     }
 
