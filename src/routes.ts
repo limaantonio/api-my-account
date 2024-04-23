@@ -21,17 +21,15 @@ routes.put('/budget/:id/', budgetController.update);
 routes.delete('/budget/:id/', budgetController.deletById);
 routes.post('/budget/:id/', budgetController.setFlagIncomeRegister);
 
-routes.post('/budget/month', budgetMonthController.create);
+routes.post('/month', budgetMonthController.create);
 routes.get('/months/budget/:id/', budgetMonthController.listByBudget);
 routes.delete('/budget/month/:id/', budgetMonthController.deletById);
 routes.get('/months/budget/balance/:id/', budgetMonthController.getBalance);
 
-routes.get('/account', accountController.listAll);
 routes.get('/account/:id/', accountController.listById);
 routes.post('/account', accountController.create);
 routes.put('/account/:id/', accountController.update);
 routes.delete('/account/:id/', accountController.deletById);
-routes.post('/accounts', accountController.createAll);
 routes.get('/account/budget/:id/', accountController.listByBudgetId);
 routes.get('/account/balance/budget/:id/', accountController.getBalance);
 routes.post('/account/budget/:id/', accountController.createByBudget);

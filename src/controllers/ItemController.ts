@@ -6,7 +6,6 @@ import { getCustomRepository } from 'typeorm';
 import EntryRepository from '../respositories/EntryRepository';
 import { getAvailableValue } from '../services/BudgetMonthService';
 import AccountRepository from '../respositories/AccountRepository';
-import { Account, TypeRole } from '../entities/Account';
 import { Entry } from '../entities/Entry';
 import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
 
@@ -15,7 +14,6 @@ interface IResquestEntry {
   entry: Entry;
   budget_month_id: string;
   account_id: string;
-
 }
 
 export default class ItemController {
@@ -52,7 +50,10 @@ export default class ItemController {
     return response.json(items);
   }
 
-  async create(request: Request, response: Response): Promise<Response<Item[]>> {
+  async create(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Item[]>> {
     const itemRepository = getCustomRepository(ItemRepository);
     const entryRepository = getCustomRepository(EntryRepository);
     const budgetRepository = getCustomRepository(BudgetRepository);
@@ -63,7 +64,7 @@ export default class ItemController {
     let err;
     let budget_month;
     let budget;
-  
+
     try {
       budget_month = await budgetMonthRepository.findOne({
         where: { id: data.entry?.budget_month_id },
@@ -83,13 +84,17 @@ export default class ItemController {
         budget_month,
       });
       const savedEntry = await entryRepository.save(newEntry);
-  
+
       let value = 0;
       for (const itemData of data.items) {
         value += itemData.amount;
       }
-  
-      if (account?.type === 'EXPENSE' && value > getAvailableValue(account).available_value) {
+
+      if (
+        account &&
+        account.sub_account?.type === 'EXPENSE' &&
+        value > getAvailableValue(account).available_value
+      ) {
         err = 'Insufficient funds';
         await entryRepository.delete(savedEntry.id);
       } else {
@@ -106,14 +111,13 @@ export default class ItemController {
       console.error('Error:', error);
       return response.status(500).json({ error: 'Internal Server Error' });
     }
-  
+
     if (err) {
       return response.status(400).json({ error: err });
     } else {
       return response.json(createdItems);
     }
   }
-  
 
   async update(request: Request, response: Response): Promise<Response<Item>> {
     const itemRepository = getCustomRepository(ItemRepository);
