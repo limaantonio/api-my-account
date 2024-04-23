@@ -119,4 +119,32 @@ export default class BudgetController {
 
     return response.status(204).json(budget);
   }
+
+  async setFlagIncomeRegister(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Budget>> {
+    const budgetRepository = getCustomRepository(BudgetRepository);
+    const { id } = request.params;
+
+    let budget;
+    let _budget;
+
+    try {
+      budget = await budgetRepository.findOne({
+        where: { id },
+      });
+
+      _budget = await budgetRepository.update(id, {
+        flag_income_registred: true,
+        year: budget?.year,
+        updated_at: new Date(),
+      });
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.status(204).json(budget);
+  }
 }

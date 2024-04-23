@@ -19,6 +19,11 @@ export class CreateTableBudget1713065117428 implements MigrationInterface {
                 type: 'integer',
               },
               {
+                name: 'flag_income_registred',
+                type: 'boolean',
+                default: false,
+              },
+              {
                 name: 'created_at',
                 type: 'timestamp',
                 default: 'now()',

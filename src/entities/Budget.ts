@@ -11,6 +11,9 @@ class Budget {
   year!: number;
 
   @Column()
+  flag_income_registred!: boolean;
+
+  @Column()
   created_at!: Date;
 
   @Column()
