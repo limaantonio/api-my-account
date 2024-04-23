@@ -4,7 +4,6 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { getBudget } from '../services/BudgetMonthService';
-import EntryRepository from '../respositories/EntryRepository'
 import { Budget } from '../entities/Budget';
 
 interface IResquestBudgetMonth {
@@ -79,15 +78,10 @@ export default class BudgetMonthController {
     return response.status(204).send();
   }
 
-  async getBalance(
-    request: Request,
-    response: Response,
-  ): Promise<Response> {
+  async getBalance(request: Request, response: Response): Promise<Response> {
     const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
-    const entryRepository = getCustomRepository(EntryRepository);
     const { id } = request.params;
     let _budgetMonth;
-    let _entries;
 
     try {
       _budgetMonth = await budgetMonthRepository.findOne({
@@ -103,5 +97,4 @@ export default class BudgetMonthController {
 
     return response.json(balance);
   }
-
 }

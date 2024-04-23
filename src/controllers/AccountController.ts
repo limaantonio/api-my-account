@@ -7,49 +7,15 @@ import { verifyAmountBalance } from '../services/AccountService';
 import SubAccountRepository from '../respositories/SubAccountRepository';
 
 interface IResquestAccount {
+  name: string;
   amount: number;
-  account: Account;
+  sub_account: string;
+  type: string;
+  number_of_installments: number;
+  budget_id: string;
 }
 
 export default class AccountController {
-  async listAll(
-    request: Request,
-    response: Response,
-  ): Promise<Response<Account>> {
-    const accountRepository = getCustomRepository(AccountRepository);
-    let _accounts = [];
-    let accounts;
-    let _result;
-    let income = 0;
-    let expense = 0;
-
-    try {
-      _accounts = await accountRepository.find({
-        relations: ['entry'],
-      });
-
-      accounts = verifyAmountBalance(_accounts);
-      _accounts?.map(account => {
-        if (account.type === 'INCOME') {
-          income += Number(account.amount);
-        } else {
-          expense += Number(account.amount);
-        }
-      });
-
-      _result = {
-        income,
-        expense,
-        accounts,
-      };
-    } catch (error) {
-      console.log(error);
-      return response.json(error);
-    }
-
-    return response.json(_result);
-  }
-
   async getBalance(
     request: Request,
     response: Response,
@@ -135,8 +101,6 @@ export default class AccountController {
       console.log(error);
       return response.json(error);
     }
-
-    let _result = [];
     let income = 0;
     let expense = 0;
 
@@ -193,7 +157,7 @@ export default class AccountController {
         }, 0);
       }
 
-      if (sub_account?.amount < data.amount + total) {
+      if (sub_account && sub_account?.amount < data.amount + total) {
         return response.json({ error: 'Saldo insuficiente' });
       } else {
         account = await accountRepository.create({
@@ -223,10 +187,8 @@ export default class AccountController {
     const subAccountRepository = getCustomRepository(SubAccountRepository);
     const data = request.body;
     let createdItems: Account[] = [];
-
     let account;
     let budget;
-    let err;
 
     try {
       budget = await budgetRepository.create({
@@ -255,7 +217,7 @@ export default class AccountController {
           }, 0);
         }
 
-        if (sub_account?.amount < accountData.amount + total) {
+        if (sub_account && sub_account?.amount < accountData.amount + total) {
           return response.json({ error: 'Saldo insuficiente' });
         } else {
           account = await accountRepository.create({
@@ -279,53 +241,12 @@ export default class AccountController {
     return response.json(createdItems);
   }
 
-  async createAll(
-    request: Request,
-    response: Response,
-  ): Promise<Response<Account>> {
-    const budgetRepository = getCustomRepository(BudgetRepository);
-    const accountRepository = getCustomRepository(AccountRepository);
-    const datas = request.body;
-
-    let account;
-    let budget;
-    let err;
-
-    try {
-      datas.map(async data => {
-        if (!data.budget_id) {
-          err = 'Budget is required';
-          throw new Error(err as any);
-        }
-
-        budget = await budgetRepository.findOne(data.budget_id);
-
-        account = await accountRepository.create({
-          name: data.name,
-          amount: data.amount,
-          sub_account: data.sub_account,
-          type: data.type,
-          number_of_installments: data.number_of_installments,
-          budget,
-        });
-        await accountRepository.save(account);
-      });
-    } catch (error) {
-      console.log(error);
-      return response.json(error);
-    }
-
-    return response.json(account);
-  }
-
   async deletById(
     request: Request,
     response: Response,
   ): Promise<Response<Account>> {
     const accountRepository = getCustomRepository(AccountRepository);
     const { id } = request.params;
-
-    console.log(id);
 
     try {
       await accountRepository.delete(id);
@@ -352,7 +273,6 @@ export default class AccountController {
         name: data.name ? data.name : account?.name,
         amount: data.amount ? data.amount : account?.amount,
         sub_account: data.sub_account ? data.sub_account : account?.sub_account,
-        type: data.type ? data.type : account?.type,
         number_of_installments: data.number_of_installments
           ? data.number_of_installments
           : account?.number_of_installments,

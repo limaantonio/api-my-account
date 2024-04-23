@@ -1,10 +1,8 @@
 import { Entry, TypeRole } from '../entities/Entry';
 import EntryRepository from '../respositories/EntryRepository';
-import { query, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import AccountRepository from '../respositories/AccountRepository';
-import { getItemsAmount } from '../services/ItemsService';
-import { getAvailableValue } from '../services/BudgetMonthService';
 import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
 import { BudgetMonth } from '../entities/BudgetMonth';
 import { Account } from '../entities/Account';
@@ -26,7 +24,6 @@ export default class EntryController {
     const entryRepository = getCustomRepository(EntryRepository);
     let entrys = [];
     let result = [];
-    let amount;
     let income = 0;
     let expense = 0;
     try {
