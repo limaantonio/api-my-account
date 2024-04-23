@@ -6,6 +6,7 @@ import { getCustomRepository } from 'typeorm';
 import { verifyAmountBalance } from '../services/AccountService';
 import {Entry} from '../entities/Entry'
 import EntryRepository from '../respositories/EntryRepository'
+import SubAccountRepository from '../respositories/SubAccountRepository';
 
 interface IResquestAccount {
   amount: number;
@@ -64,7 +65,7 @@ export default class AccountController {
     try {
       _accounts = await accountRepository.find({
         where: { budget_id: id},
-        relations: ['entry'],
+        relations: ['entry', 'sub_account'],
       });
 
       accounts = verifyAmountBalance(_accounts);
@@ -74,10 +75,10 @@ export default class AccountController {
 
       accounts = verifyAmountBalance(_accounts);
       _accounts?.map(account => {
-        if (account.type === 'INCOME') {
-          income += Number(account.amount);
+        if (account.sub_account.type === 'INCOME') {
+          income += Number(account.amount * account.number_of_installments);
         } else {
-          expense += Number(account.amount);
+          expense += Number(account.amount * account.number_of_installments);
         }
       });
 
@@ -134,7 +135,7 @@ export default class AccountController {
     try {
       _accounts = await accountRepository.find({
         where: { budget_id: id },
-        relations: [ 'entry'],
+        relations: [ 'entry', 'sub_account'],
       });
 
       console.log(_accounts)
@@ -153,7 +154,7 @@ export default class AccountController {
 
       accounts = verifyAmountBalance(_accounts);
       _accounts?.map(account => {
-        if (account.type === 'INCOME') {
+        if (account.sub_account.type === 'INCOME') {
           income += Number(account.amount);
         } else {
           expense += Number(account.amount);
@@ -170,12 +171,80 @@ export default class AccountController {
 
   }
 
+  async createByBudget(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    const budgetRepository = getCustomRepository(BudgetRepository);
+    const subAccountRepository = getCustomRepository(SubAccountRepository);
+    const data = request.body;
+    const {id} = request.params;
+    let createdItems: Account[] = [];
+    let account;
+
+    try {
+      const budget = await budgetRepository.findOne(
+        {
+          where : { id: id }
+        }
+      );
+
+      const sub_account = await subAccountRepository.findOne({
+        where: { id: data.sub_account_id },
+      
+      });
+
+      const accounts = await accountRepository.find({
+        where: {
+          budget: budget,
+          sub_account: sub_account
+        }
+      });
+
+      let total = 0;
+
+      if (accounts.length > 0) {
+        total = accounts.reduce((acc, account) => {
+          return acc + Number(account.amount)
+        }, 0)
+      }
+
+      if (sub_account?.amount < (data.amount + total)) {
+        
+        return response.json({error: 'Saldo insuficiente'});
+       
+      } else {
+        account = await accountRepository.create({
+          name: data.name,
+          amount: data.amount,
+          sub_account,
+          number_of_installments: data.number_of_installments,
+          budget
+        });
+        await accountRepository.save(account);
+        createdItems.push(account);
+      }
+      
+     
+      
+
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(account);
+  }
+  
+
   async create(
     request: Request,
     response: Response,
   ): Promise<Response<Account>> {
     const budgetRepository = getCustomRepository(BudgetRepository);
     const accountRepository = getCustomRepository(AccountRepository);
+    const subAccountRepository = getCustomRepository(SubAccountRepository);
     const data = request.body;
     let createdItems: Account[] = [];
 
@@ -192,16 +261,42 @@ export default class AccountController {
       await budgetRepository.save(budget);
 
       for (const accountData of data.accounts) {
-        account = await accountRepository.create({
-          name: accountData.name,
-          amount: accountData.amount,
-          sub_account: accountData.sub_account,
-          type: accountData.type,
-          number_of_installments: accountData.number_of_installments,
-          budget,
+
+        const sub_account = await subAccountRepository.findOne({
+          where: { id: accountData.sub_account_id },
         });
-        await accountRepository.save(account);
-        createdItems.push(account);
+
+        const accounts = await accountRepository.find({
+          where: {
+            budget: budget,
+            sub_account: sub_account
+          }
+        });
+  
+        let total = 0;
+  
+        if (accounts.length > 0) {
+          total = accounts.reduce((acc, account) => {
+            return acc + Number(account.amount)
+          }, 0)
+        }
+  
+        if (sub_account?.amount < (accountData.amount + total)) {
+          
+          return response.json({error: 'Saldo insuficiente'});
+         
+        } else {
+
+          account = await accountRepository.create({
+            name: accountData.name,
+            amount: accountData.amount,
+            sub_account,
+            number_of_installments: accountData.number_of_installments,
+            budget,
+          });
+          await accountRepository.save(account);
+          createdItems.push(account);
+        }
       }
 
       await accountRepository.save(createdItems);

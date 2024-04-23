@@ -4,6 +4,7 @@ import AccountController from './controllers/AccountController';
 import EntryController from './controllers/EntryController';
 import ItemController from './controllers/ItemController';
 import BudgetMonthController from './controllers/BudgetMonthController';
+import SubAccountController from './controllers/SubAccountController';
 
 const routes = Router();
 const budgetController = new BudgetController();
@@ -11,12 +12,14 @@ const accountController = new AccountController();
 const entryController = new EntryController();
 const itemController = new ItemController();
 const budgetMonthController = new BudgetMonthController();
+const subAccountController = new SubAccountController();
 
 routes.get('/budget', budgetController.listAll);
 routes.get('/budget/:id/', budgetController.listById);
 routes.post('/budget', budgetController.create);
 routes.put('/budget/:id/', budgetController.update);
 routes.delete('/budget/:id/', budgetController.deletById);
+routes.post('/budget/:id/', budgetController.setFlagIncomeRegister);
 
 routes.post('/budget/month', budgetMonthController.create);
 routes.get('/months/budget/:id/', budgetMonthController.listByBudget);
@@ -31,6 +34,12 @@ routes.delete('/account/:id/', accountController.deletById);
 routes.post('/accounts', accountController.createAll);
 routes.get('/account/budget/:id/', accountController.listByBudgetId);
 routes.get('/account/balance/budget/:id/', accountController.getBalance);
+routes.post('/account/budget/:id/', accountController.createByBudget);
+
+routes.post('/subaccount', subAccountController.create);
+routes.get('/subaccount/balance', subAccountController.getBalance);
+routes.get('/subaccount', subAccountController.listSubAccount);
+routes.delete('/subaccount/:id/', subAccountController.deletById);
 
 routes.get('/entry', entryController.listAll);
 routes.get('/entry/:id/', entryController.listById);

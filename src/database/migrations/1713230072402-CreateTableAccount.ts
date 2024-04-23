@@ -1,6 +1,6 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import {MigrationInterface, QueryRunner, Table} from "typeorm";
 
-export class CreateTableAccount1713099397836 implements MigrationInterface {
+export class CreateTableAccount1713230072402 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
@@ -19,40 +19,22 @@ export class CreateTableAccount1713099397836 implements MigrationInterface {
                     type: 'varchar',
                 },
                 {
-                    name: 'sub_account',
-                    type: 'enum',
-                    enum: [
-                        'WAGE',
-                        'WAGE_BONUS',
-                        'WAGE_EXTRA',
-                        'WAGE_OTHER',
-                        'RETIREMENT',
-                        'FAMILY_FUND',
-                        'INVESTIMENT',
-                        'ECONOMY',
-                        'INVESTIMENT_OTHER',
-                        'CURRENT_EXPENSES',
-                        'OLD_EXPENSES',
-                        'CURRENT_EXPENSES_OTHER',
-                        'INTEREST_AND_CHARGES',
-                        'TAX_FESS',
-                        'OTHER',
-                    ],
-                },
-                { name: 'type', type: 'enum', enum: ['INCOME', 'EXPENSE'] },
-                {
-                    name: 'amount',
-                    type: 'decimal',
-                    precision: 10,
-                    scale: 2,
-                },
-                {
                     name: 'number_of_installments',
                     type: 'integer',
                     isNullable: true,
                 },
                 {
+                    name: 'amount',
+                    type: 'decimal',
+                    precision: 10,
+                    scale: 2
+                },
+                {
                     name: 'budget_id',
+                    type: 'uuid',
+                },
+                {
+                    name: 'sub_account_id',
                     type: 'uuid',
                 },
                 {
@@ -72,6 +54,14 @@ export class CreateTableAccount1713099397836 implements MigrationInterface {
                     referencedTableName: 'budget',
                     referencedColumnNames: ['id'],
                     columnNames: ['budget_id'],
+                    onDelete: 'CASCADE',
+                    onUpdate: 'CASCADE',
+                },
+                {
+                    name: 'FKSubAccount',
+                    referencedTableName: 'sub_account',
+                    referencedColumnNames: ['id'],
+                    columnNames: ['sub_account_id'],
                     onDelete: 'CASCADE',
                     onUpdate: 'CASCADE',
                 },
