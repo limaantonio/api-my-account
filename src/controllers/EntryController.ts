@@ -281,7 +281,7 @@ export default class EntryController {
     let result;
     let _entry;
     let monthBudget;
-    let entries = []
+    let entries = [];
 
     try {
       monthBudget = await monthBudgetRepository.findOne({
@@ -295,14 +295,13 @@ export default class EntryController {
 
       let total = 0;
       entrys.map(entry => {
-          entry.items.map(item => {
-            total += Number(item.amount);
-          });
-          entry.amount = total;
-          entries.push(entry);
-          total = 0;
+        entry.items.map(item => {
+          total += Number(item.amount);
+        });
+        entry.amount = total;
+        entries.push(entry);
+        total = 0;
       });
-
     } catch (error) {
       console.log(error);
       return response.json(error);
@@ -311,19 +310,22 @@ export default class EntryController {
     return response.json(entrys);
   }
 
-  async create(request: Request, response: Response): Promise<Response<IResquestEntry>> {
+  async create(
+    request: Request,
+    response: Response,
+  ): Promise<Response<IResquestEntry>> {
     const entryRepository = getCustomRepository(EntryRepository);
     const accountRepository = getCustomRepository(AccountRepository);
     const budgetRepository = getCustomRepository(BudgetRepository);
     const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
-    const { description, installment, budget_month_id, account_id } = request.body as IResquestEntry;
+    const { description, installment, budget_month_id, account_id } =
+      request.body as IResquestEntry;
     let _entry;
     let budget;
     let account;
     let budget_month;
 
     try {
-
       budget_month = await budgetMonthRepository.findOne({
         where: { id: budget_month_id },
       });
@@ -332,10 +334,8 @@ export default class EntryController {
         where: { id: budget_month?.budget?.id },
       });
 
-
       account = await accountRepository.findOne({
         where: { id: account_id },
-
       });
 
       _entry = await entryRepository.create({

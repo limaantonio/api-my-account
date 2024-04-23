@@ -3,8 +3,7 @@ import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
 import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { getBudget, verifyAmountBalance } from '../services/BudgetMonthService';
-import {Entry} from '../entities/Entry'
+import { getBudget } from '../services/BudgetMonthService';
 import EntryRepository from '../respositories/EntryRepository'
 import { Budget } from '../entities/Budget';
 
@@ -100,7 +99,7 @@ export default class BudgetMonthController {
       return response.json(error);
     }
 
-    const balance = getBudget(_budgetMonth)
+    const balance = _budgetMonth ? getBudget(_budgetMonth) : null;
 
     return response.json(balance);
   }
