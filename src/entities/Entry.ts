@@ -32,6 +32,9 @@ class Entry {
   status!: TypeRole.PENDING;
 
   @Column()
+  account_id!: string;
+
+  @Column()
   created_at!: Date;
 
   @Column()
@@ -42,11 +45,13 @@ class Entry {
   })
   items: Item[];
 
-  @ManyToOne(() => BudgetMonth, budget_month => budget_month.entries)
+  @ManyToOne(() => BudgetMonth, budget_month => budget_month.entry)
   @JoinColumn({ name: 'budget_month_id' })
   budget_month: BudgetMonth;
 
-  @ManyToOne(() => Account)
+  @OneToOne(() => Account, account => account.entry, {
+    eager: true,
+  })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 }

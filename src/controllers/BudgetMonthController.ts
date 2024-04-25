@@ -77,7 +77,7 @@ export default class BudgetMonthController {
 
     return response.status(204).send();
   }
-
+  //transaferir para BudgetMonthService
   async getBalance(request: Request, response: Response): Promise<Response> {
     const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
     const { id } = request.params;
@@ -86,7 +86,7 @@ export default class BudgetMonthController {
     try {
       _budgetMonth = await budgetMonthRepository.findOne({
         where: { id },
-        relations: ['entries', 'entries.account'],
+        relations: ['entry'],
       });
     } catch (error) {
       console.log(error);

@@ -16,6 +16,20 @@ interface IResquestAccount {
 }
 
 export default class AccountController {
+  async list(request: Request, response: Response): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    let accounts;
+
+    try {
+      accounts = await accountRepository.find();
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(accounts);
+  }
+
   async getBalance(
     request: Request,
     response: Response,
@@ -55,6 +69,26 @@ export default class AccountController {
       console.log(error);
       return response.json(error);
     }
+  }
+
+  async listOneAccount(
+    request: Request,
+    response: Response,
+  ): Promise<Response<Account>> {
+    const accountRepository = getCustomRepository(AccountRepository);
+    const { id } = request.params;
+    let accounts;
+
+    try {
+      accounts = await accountRepository.findOne({
+        where: { id },
+      });
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(accounts);
   }
 
   async listById(
@@ -262,17 +296,21 @@ export default class AccountController {
     response: Response,
   ): Promise<Response<Account>> {
     const accountRepository = getCustomRepository(AccountRepository);
+    const subAccountRepository = getCustomRepository(SubAccountRepository);
     const { id } = request.params;
     const data = request.body;
     let account: Account | undefined;
 
     account = await accountRepository.findOne(id);
+    const sub_account = await subAccountRepository.findOne({
+      where: { id: data.sub_account_id },
+    });
 
     try {
       await accountRepository.update(id, {
         name: data.name ? data.name : account?.name,
         amount: data.amount ? data.amount : account?.amount,
-        sub_account: data.sub_account ? data.sub_account : account?.sub_account,
+        sub_account: sub_account ? sub_account : account?.sub_account,
         number_of_installments: data.number_of_installments
           ? data.number_of_installments
           : account?.number_of_installments,
@@ -283,6 +321,6 @@ export default class AccountController {
       return response.json(error);
     }
 
-    return response.status(204).json(account);
+    return response.status(200).json(account);
   }
 }

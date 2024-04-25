@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Entry } from "./Entry";
-import { Budget } from "./Budget";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Entry } from './Entry';
+import { Budget } from './Budget';
 
 @Entity('budget_month')
 export class BudgetMonth {
@@ -26,6 +33,5 @@ export class BudgetMonth {
   @OneToMany(() => Entry, entry => entry.budget_month, {
     eager: true,
   })
-  entries: Entry[];
-
+  entry: Entry[];
 }

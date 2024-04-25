@@ -26,7 +26,9 @@ routes.get('/months/budget/:id/', budgetMonthController.listByBudget);
 routes.delete('/budget/month/:id/', budgetMonthController.deletById);
 routes.get('/months/budget/balance/:id/', budgetMonthController.getBalance);
 
+routes.get('/accounts', accountController.list);
 routes.get('/account/:id/', accountController.listById);
+routes.get('/accountid/:id/', accountController.listOneAccount);
 routes.post('/account', accountController.create);
 routes.put('/account/:id/', accountController.update);
 routes.delete('/account/:id/', accountController.deletById);
@@ -38,6 +40,8 @@ routes.post('/subaccount', subAccountController.create);
 routes.get('/subaccount/balance', subAccountController.getBalance);
 routes.get('/subaccount', subAccountController.listSubAccount);
 routes.delete('/subaccount/:id/', subAccountController.deletById);
+routes.get('/subaccount/:id/', subAccountController.listById);
+routes.put('/subaccount/:id/', subAccountController.update);
 
 routes.get('/entry', entryController.listAll);
 routes.get('/entry/:id/', entryController.listById);

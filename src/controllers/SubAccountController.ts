@@ -13,6 +13,57 @@ interface IResquestSubAccount {
 }
 
 export default class SubAccountController {
+  async listById(request: Request, response: Response): Promise<Response> {
+    const subAccountRepository = getCustomRepository(SubAccountRepository);
+    const { id } = request.params;
+    let result = {};
+
+    try {
+      result = await subAccountRepository.findOne(id);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+    return response.json(result);
+  }
+
+  async update(request: Request, response: Response): Promise<Response> {
+    const subAccountRepository = getCustomRepository(SubAccountRepository);
+    const { id } = request.params;
+    const data = request.body;
+    let result = {};
+
+    try {
+      const subAccount = await subAccountRepository.findOne(id);
+      if (!subAccount) {
+        return response.status(404).json({ message: 'SubAccount not found' });
+      }
+
+      const dataIncome = await subAccountRepository.find({
+        where: { type: 'INCOME' },
+      });
+
+      const totalIncome = dataIncome.reduce((acc, item) => {
+        acc += Number(item.amount);
+        return acc;
+      }, 0);
+
+      const insufficientBalance =
+        data.type === 'EXPENSE' && totalIncome < data.amount;
+
+      if (insufficientBalance) {
+        return response.json({ message: 'Saldo insuficiente' });
+      }
+
+      await subAccountRepository.update(id, data);
+      result = await subAccountRepository.findOne(id);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+    return response.json(result);
+  }
+
   async create(
     request: Request,
     response: Response,

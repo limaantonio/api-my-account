@@ -252,18 +252,27 @@ export default class EntryController {
   ): Promise<Response<Entry>> {
     const entryRepository = getCustomRepository(EntryRepository);
     const { id } = request.params;
-    let entrys;
+    let entry;
 
     try {
-      entrys = await entryRepository.findOne({
+      entry = await entryRepository.findOne({
         where: { id },
+        relations: ['account'],
       });
+
+      let total = 0;
+      entry?.items.map(item => {
+        total += Number(item.amount);
+      });
+
+      entry?.amount = total;
+      total = 0;
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(entrys);
+    return response.json(entry);
   }
 
   async listByMonthId(
