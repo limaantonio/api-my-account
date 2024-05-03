@@ -4,7 +4,7 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import EntryRepository from '../respositories/EntryRepository';
-import { getAvailableValue } from '../services/BudgetMonthService';
+import { getTotalExpanse } from '../services/BudgetMonthService';
 import AccountRepository from '../respositories/AccountRepository';
 import { Entry } from '../entities/Entry';
 import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
@@ -68,6 +68,7 @@ export default class ItemController {
     try {
       budget_month = await budgetMonthRepository.findOne({
         where: { id: data.entry?.budget_month_id },
+        relations: ['entry'],
       });
 
       budget = await budgetRepository.findOne({
@@ -93,7 +94,7 @@ export default class ItemController {
       if (
         account &&
         account.sub_account?.type === 'EXPENSE' &&
-        value > getAvailableValue(account).available_value
+        value > getTotalExpanse(budget_month)
       ) {
         err = 'Insufficient funds';
         await entryRepository.delete(savedEntry.id);

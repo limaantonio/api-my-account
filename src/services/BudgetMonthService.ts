@@ -64,6 +64,10 @@ function getBudgetByType(budget: Budget, type: TypeRole): Account[] {
   return budget.accounts.filter(account => account.sub_account.type === type);
 }
 
+function getAvailableValue(account: Account): number {
+  return account.balance - account.limit;
+}
+
 function getBudget(budgetMonth: BudgetMonth) {
   let totalAmount;
   let _budget;

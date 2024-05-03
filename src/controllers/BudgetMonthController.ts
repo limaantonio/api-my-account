@@ -41,6 +41,45 @@ export default class BudgetMonthController {
     return response.json(_budgetMonth);
   }
 
+  async listById(
+    request: Request,
+    response: Response,
+  ): Promise<Response<BudgetMonth>> {
+    const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
+    const { id } = request.params;
+    let _budgetMonth;
+
+    try {
+      _budgetMonth = await budgetMonthRepository.findOne(id);
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(_budgetMonth);
+  }
+
+  async updateByid(
+    request: Request,
+    response: Response,
+  ): Promise<Response<BudgetMonth>> {
+    const budgetMonthRepository = getCustomRepository(BudgetMonthRepository);
+    const { id } = request.params;
+    const { month } = request.body;
+    let _budgetMonth;
+
+    try {
+      _budgetMonth = await budgetMonthRepository.update(id, {
+        month,
+      });
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.status(204).send();
+  }
+
   async listByBudget(
     request: Request,
     response: Response,
