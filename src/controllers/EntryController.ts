@@ -257,7 +257,7 @@ export default class EntryController {
     try {
       entry = await entryRepository.findOne({
         where: { id },
-        relations: ['account'],
+        relations: ['account', 'budget_month'],
       });
 
       let total = 0;
@@ -336,9 +336,13 @@ export default class EntryController {
         where: { id: budget_month_id },
       });
 
-      budget = await budgetRepository.findOne({
-        where: { id: budget_month?.budget?.id },
-      });
+      if (!budget_month) {
+        return response.status(404).json({ message: 'Budget month not found' });
+      } else {
+        budget = await budgetRepository.findOne({
+          where: { id: budget_month?.budget.id },
+        });
+      }
 
       account = await accountRepository.findOne({
         where: { id: account_id },
@@ -351,6 +355,8 @@ export default class EntryController {
         budget_month: budget_month as BudgetMonth,
         account: account as Account,
       });
+
+      console.log(budget_month);
 
       await entryRepository.save(_entry);
     } catch (error) {
@@ -389,7 +395,6 @@ export default class EntryController {
         description: data.description ? data.description : entry?.description,
         installment: data.installment ? data.installment : entry?.installment,
         status: data.status ? data.status : entry?.status,
-        month: data.month ? data.month : entry?.month,
         updated_at: new Date(),
       });
     } catch (error) {

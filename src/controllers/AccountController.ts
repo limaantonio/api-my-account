@@ -191,7 +191,13 @@ export default class AccountController {
         }, 0);
       }
 
-      if (sub_account && sub_account?.amount < data.amount + total) {
+      console.log(total);
+
+      if (
+        sub_account &&
+        data.type == 'EXPENSE' &&
+        sub_account?.amount < data.amount + total
+      ) {
         return response.json({ error: 'Saldo insuficiente' });
       } else {
         account = await accountRepository.create({
@@ -225,25 +231,34 @@ export default class AccountController {
     let budget;
 
     try {
-      budget = await budgetRepository.create({
-        year: data.budget.year,
+      const _budget = await budgetRepository.findOne({
+        where: { year: data.budget.year },
       });
 
-      await budgetRepository.save(budget);
+      if (_budget) {
+        return response.json({ error: 'Orçamento já cadastrado' });
+      } else {
+        budget = await budgetRepository.create({
+          year: data.budget.year,
+        });
+      }
 
       for (const accountData of data.accounts) {
         const sub_account = await subAccountRepository.findOne({
           where: { id: accountData.sub_account_id },
         });
 
+        console.log(sub_account);
+
         const accounts = await accountRepository.find({
           where: {
-            budget: budget,
             sub_account: sub_account,
           },
         });
 
         let total = 0;
+
+        console.log(accounts);
 
         if (accounts.length > 0) {
           total = accounts.reduce((acc, account) => {
@@ -251,9 +266,12 @@ export default class AccountController {
           }, 0);
         }
 
+        console.log(total);
+
         if (sub_account && sub_account?.amount < accountData.amount + total) {
           return response.json({ error: 'Saldo insuficiente' });
         } else {
+          budget = await budgetRepository.save(budget);
           account = await accountRepository.create({
             name: accountData.name,
             amount: accountData.amount,

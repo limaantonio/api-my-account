@@ -25,6 +25,8 @@ routes.post('/month', budgetMonthController.create);
 routes.get('/months/budget/:id/', budgetMonthController.listByBudget);
 routes.delete('/budget/month/:id/', budgetMonthController.deletById);
 routes.get('/months/budget/balance/:id/', budgetMonthController.getBalance);
+routes.get('/month/:id/', budgetMonthController.listById);
+routes.put('/month/:id/', budgetMonthController.updateByid);
 
 routes.get('/accounts', accountController.list);
 routes.get('/account/:id/', accountController.listById);
