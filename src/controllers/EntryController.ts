@@ -380,7 +380,7 @@ export default class EntryController {
       return response.json(error);
     }
 
-    return response.status(204);
+    return response.status(204).send();
   }
 
   async update(request: Request, response: Response): Promise<Response<Entry>> {
