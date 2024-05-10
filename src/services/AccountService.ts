@@ -20,14 +20,14 @@ function getAvailableValue(account: Account) {
 
   const values = { available_value, used_value };
   if (account.entry.length === 0) {
-    available_value = account.amount;
+    available_value = account.amount * account.number_of_installments;
     values.available_value = available_value;
   }
   account.entry.forEach(entry => {
-    let _available_value = account.amount;
+    let _available_value = account.amount * account.number_of_installments;
 
     if (entry.items.length === 0) {
-      available_value = account.amount;
+      available_value = account.amount * account.number_of_installments;
       values.available_value = available_value;
     }
     entry.items.forEach(item => {
@@ -35,7 +35,8 @@ function getAvailableValue(account: Account) {
 
       values.available_value = _available_value;
     });
-    values.available_value = account.amount - values.used_value;
+    values.available_value =
+      account.amount * account.number_of_installments - values.used_value;
   });
   return values;
 }

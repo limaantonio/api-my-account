@@ -4,7 +4,10 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import EntryRepository from '../respositories/EntryRepository';
-import { getTotalExpanse } from '../services/BudgetMonthService';
+import {
+  getTotalAmountExpense,
+  getTotalExpanse,
+} from '../services/BudgetMonthService';
 import AccountRepository from '../respositories/AccountRepository';
 import { Entry } from '../entities/Entry';
 import BudgetMonthRepository from '../respositories/BudgetMonthRepository';
@@ -88,13 +91,13 @@ export default class ItemController {
 
       let value = 0;
       for (const itemData of data.items) {
-        value += itemData.amount;
+        value += Number(itemData.amount);
       }
 
       if (
         account &&
         account.sub_account?.type === 'EXPENSE' &&
-        value > getTotalExpanse(budget_month)
+        value <= getTotalAmountExpense(budget_month)
       ) {
         err = 'Insufficient funds';
         await entryRepository.delete(savedEntry.id);

@@ -140,13 +140,6 @@ export default class AccountController {
 
     try {
       accounts = verifyAmountBalance(_accounts);
-      _accounts?.map(account => {
-        if (account.sub_account.type === 'INCOME') {
-          income += Number(account.amount);
-        } else {
-          expense += Number(account.amount);
-        }
-      });
     } catch (error) {
       console.log(error);
       return response.json(error);
@@ -176,9 +169,10 @@ export default class AccountController {
         where: { id: data.sub_account_id },
       });
 
+      console.log(sub_account);
+
       const accounts = await accountRepository.find({
         where: {
-          budget: budget,
           sub_account: sub_account,
         },
       });
@@ -191,13 +185,10 @@ export default class AccountController {
         }, 0);
       }
 
-      console.log(total);
+      console.log(sub_account?.amount);
+      console.log(data.amount);
 
-      if (
-        sub_account &&
-        data.type == 'EXPENSE' &&
-        sub_account?.amount < data.amount + total
-      ) {
+      if (sub_account && sub_account?.amount < Number(data.amount) + total) {
         return response.json({ error: 'Saldo insuficiente' });
       } else {
         account = await accountRepository.create({
@@ -258,7 +249,7 @@ export default class AccountController {
 
         let total = 0;
 
-        console.log(accounts);
+        //console.log(accounts);
 
         if (accounts.length > 0) {
           total = accounts.reduce((acc, account) => {
@@ -266,9 +257,9 @@ export default class AccountController {
           }, 0);
         }
 
-        console.log(total);
+        //console.log(total);
 
-        if (sub_account && sub_account?.amount < accountData.amount + total) {
+        if (sub_account && sub_account?.amount > accountData.amount + total) {
           return response.json({ error: 'Saldo insuficiente' });
         } else {
           budget = await budgetRepository.save(budget);
