@@ -1,16 +1,11 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    OneToMany,
-  } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Account } from './Account';
 
 export enum TypeRole {
   INCOME = 'INCOME',
   EXPENSE = 'EXPENSE',
 }
-  
+
 @Entity('sub_account')
 class SubAccount {
   @PrimaryGeneratedColumn('uuid')
@@ -28,7 +23,7 @@ class SubAccount {
     default: TypeRole.EXPENSE,
   })
   type: TypeRole;
-  
+
   @Column()
   amount!: number;
 
@@ -43,7 +38,6 @@ class SubAccount {
 
   @OneToMany(() => Account, account => account.sub_account)
   accounts: Account[];
-
 }
-  
-  export { SubAccount };
+
+export { SubAccount };

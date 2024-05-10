@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTableSubAccount1713229926591 implements MigrationInterface {
+export class CreateTableSubAccount1715304447236 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -29,6 +29,11 @@ export class CreateTableSubAccount1713229926591 implements MigrationInterface {
             type: 'decimal',
             precision: 10,
             scale: 2,
+          },
+          {
+            name: 'installments',
+            type: 'integer',
+            isNullable: true,
           },
           {
             name: 'principal',

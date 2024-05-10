@@ -165,48 +165,57 @@ export default class AccountController {
         where: { id: id },
       });
 
-      const sub_account = await subAccountRepository.findOne({
-        where: { id: data.sub_account_id },
-      });
+      if (budget === undefined)
+        return response.json({ error: 'Orçamento não encontrado' });
 
-      console.log(sub_account);
-
-      const accounts = await accountRepository.find({
-        where: {
-          sub_account: sub_account,
-        },
-      });
-
-      let total = 0;
-
-      if (accounts.length > 0) {
-        total = accounts.reduce((acc, account) => {
-          return acc + Number(account.amount);
-        }, 0);
-      }
-
-      console.log(sub_account?.amount);
-      console.log(data.amount);
-
-      if (sub_account && sub_account?.amount < Number(data.amount) + total) {
-        return response.json({ error: 'Saldo insuficiente' });
-      } else {
-        account = await accountRepository.create({
-          name: data.name,
-          amount: data.amount,
-          sub_account,
-          number_of_installments: data.number_of_installments,
-          budget,
+      for (const _account of data) {
+        const sub_account = await subAccountRepository.findOne({
+          where: { id: _account.sub_account_id },
         });
-        await accountRepository.save(account);
-        createdItems.push(account);
+
+        console.log(sub_account);
+
+        if (sub_account === undefined) {
+          return response.json({ error: 'sub_account não encontrada' });
+        }
+
+        const accounts = await accountRepository.find({
+          where: {
+            sub_account: sub_account,
+          },
+        });
+
+        let total = 0;
+
+        if (accounts.length > 0) {
+          total = accounts.reduce((acc, account) => {
+            return acc + Number(account.amount);
+          }, 0);
+        }
+
+        if (
+          sub_account &&
+          sub_account?.amount < Number(_account.amount) + total
+        ) {
+          return response.status(400).json({ error: 'Saldo insuficiente' });
+        } else {
+          account = await accountRepository.create({
+            name: _account.name,
+            amount: _account.amount,
+            sub_account,
+            number_of_installments: _account.number_of_installments,
+            budget,
+          });
+          await accountRepository.save(account);
+          createdItems.push(account);
+        }
       }
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
 
-    return response.json(account);
+    return response.json(createdItems);
   }
 
   async create(
@@ -260,7 +269,7 @@ export default class AccountController {
         //console.log(total);
 
         if (sub_account && sub_account?.amount > accountData.amount + total) {
-          return response.json({ error: 'Saldo insuficiente' });
+          return response.status(400).json({ error: 'Saldo insuficiente' });
         } else {
           budget = await budgetRepository.save(budget);
           account = await accountRepository.create({

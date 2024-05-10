@@ -356,8 +356,6 @@ export default class EntryController {
         account: account as Account,
       });
 
-      console.log(budget_month);
-
       await entryRepository.save(_entry);
     } catch (error) {
       console.log(error);
