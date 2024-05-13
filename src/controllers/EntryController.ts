@@ -1,3 +1,4 @@
+import { request } from 'supertest';
 import { Entry, TypeRole } from '../entities/Entry';
 import EntryRepository from '../respositories/EntryRepository';
 import { Request, Response } from 'express';
@@ -17,232 +18,259 @@ interface IResquestEntry {
 }
 
 export default class EntryController {
-  async listAll(
-    request: Request,
-    response: Response,
-  ): Promise<Response<Entry>> {
-    const entryRepository = getCustomRepository(EntryRepository);
-    let entrys = [];
-    let result = [];
-    let income = 0;
-    let expense = 0;
-    try {
-      if (request.query.account && request.query.month) {
-        entrys = await entryRepository.query(
-          `
-            SELECT row_to_json(account)  as account_entries
-            FROM (
-              SELECT 
-                account.id,
-                account.name,
-                account.type,
-                account.sub_account,
-                account.amount,
-                (
-                  SELECT json_agg(entry)
-                  FROM (
-                    SELECT
-                      entry.id,
-                      entry.description,
-                      entry.installment,
-                      entry.month,
-                      entry.status,
-                      (
-                        SELECT json_agg(item)
-                        FROM (
-                          SELECT
-                            item.*
-                          FROM
-                            item
-                          WHERE
-                            item.entry_id = entry.id
-                        ) item
-                      ) as item,
-                      (
-                        SELECT
-                          sum(item.amount) as amount
-                        FROM
-                        item
-                        WHERE
-                        item.entry_id = entry.id
-                      ) as amount
-                    FROM entry
-                    WHERE entry.account_id = account.id AND entry.month = $1
-                  ) entry
-                ) as entry
-              FROM account
-              WHERE account.id = $2
-            ) account`,
-          [`${request.query.month}`, `${request.query.account}`],
-        );
-      } else if (request.query.month) {
-        entrys = await entryRepository.query(
-          `
-            SELECT row_to_json(account)  as account_entries
-            FROM (
-              SELECT 
-                account.id,
-                account.name,
-                account.type,
-                account.sub_account,
-                account.amount,
-                (
-                  SELECT json_agg(entry)
-                  FROM (
-                    SELECT
-                      entry.id,
-                      entry.description,
-                      entry.installment,
-                      entry.month,
-                      entry.status,
-                      (
-                        SELECT json_agg(item)
-                        FROM (
-                          SELECT
-                            item.*
-                          FROM
-                            item
-                          WHERE
-                            item.entry_id = entry.id
-                        ) item
-                      ) as item,
-                      (
-                        SELECT
-                          sum(item.amount) as amount
-                        FROM
-                        item
-                        WHERE
-                        item.entry_id = entry.id
-                      ) as amount
-                    FROM entry
-                    WHERE entry.account_id = account.id AND entry.month = $1
-                  ) entry
-                ) as entry
-              FROM account
-            ) account`,
-          [`${request.query.month}`],
-        );
-      } else if (request.query.account) {
-        entrys = await entryRepository.query(
-          `
-            SELECT row_to_json(account)  as account_entries
-            FROM (
-              SELECT 
-                account.id,
-                account.name,
-                account.type,
-                account.sub_account,
-                account.amount,
-                (
-                  SELECT json_agg(entry)
-                  FROM (
-                    SELECT
-                      entry.id,
-                      entry.description,
-                      entry.installment,
-                      entry.month,
-                      entry.status,
-                      (
-                        SELECT json_agg(item)
-                        FROM (
-                          SELECT
-                            item.*
-                          FROM
-                            item
-                          WHERE
-                            item.entry_id = entry.id
-                        ) item
-                      ) as item,
-                      (
-                        SELECT
-                          sum(item.amount) as amount
-                        FROM
-                        item
-                        WHERE
-                        item.entry_id = entry.id
-                      ) as amount
-                    FROM entry
-                    WHERE entry.account_id = account.id
-                  ) entry
-                ) as entry
-              FROM account
-              WHERE account.id = $1
-            ) account`,
-          [`${request.query.account}`],
-        );
-      } else {
-        entrys = await entryRepository.query(
-          `
-              SELECT row_to_json(account)  as account_entries
-              FROM (
-                SELECT 
-                  account.id,
-                  account.name,
-                  account.type,
-                  account.sub_account,
-                  account.amount,
-                  (
-                    SELECT json_agg(entry)
-                    FROM (
-                      SELECT
-                        entry.id,
-                        entry.description,
-                        entry.installment,
-                        entry.month,
-                        entry.status,
-                        (
-                          SELECT json_agg(item)
-                          FROM (
-                            SELECT
-                              item.*
-                            FROM
-                              item
-                            WHERE
-                              item.entry_id = entry.id
-                          ) item
-                        ) as item,
-                        (
-                          SELECT
-                            sum(item.amount) as amount
-                          FROM
-                          item
-                          WHERE
-                          item.entry_id = entry.id
-                        ) as amount
-                      FROM entry
-                      WHERE entry.account_id = account.id
-                    ) entry
-                  ) as entry
-                FROM account
-              ) account`,
-        );
-      }
+  // async listAll(
+  //   request: Request,
+  //   response: Response,
+  // ): Promise<Response<Entry>> {
+  //   const entryRepository = getCustomRepository(EntryRepository);
+  //   let entrys = [];
+  //   let result = [];
+  //   let income = 0;
+  //   let expense = 0;
+  //   try {
+  //     if (request.query.account && request.query.month) {
+  //       entrys = await entryRepository.query(
+  //         `
+  //           SELECT row_to_json(account)  as account_entries
+  //           FROM (
+  //             SELECT
+  //               account.id,
+  //               account.name,
+  //               account.type,
+  //               account.sub_account,
+  //               account.amount,
+  //               (
+  //                 SELECT json_agg(entry)
+  //                 FROM (
+  //                   SELECT
+  //                     entry.id,
+  //                     entry.description,
+  //                     entry.installment,
+  //                     entry.month,
+  //                     entry.status,
+  //                     (
+  //                       SELECT json_agg(item)
+  //                       FROM (
+  //                         SELECT
+  //                           item.*
+  //                         FROM
+  //                           item
+  //                         WHERE
+  //                           item.entry_id = entry.id
+  //                       ) item
+  //                     ) as item,
+  //                     (
+  //                       SELECT
+  //                         sum(item.amount) as amount
+  //                       FROM
+  //                       item
+  //                       WHERE
+  //                       item.entry_id = entry.id
+  //                     ) as amount
+  //                   FROM entry
+  //                   WHERE entry.account_id = account.id AND entry.month = $1
+  //                 ) entry
+  //               ) as entry
+  //             FROM account
+  //             WHERE account.id = $2
+  //           ) account`,
+  //         [`${request.query.month}`, `${request.query.account}`],
+  //       );
+  //     } else if (request.query.month) {
+  //       entrys = await entryRepository.query(
+  //         `
+  //           SELECT row_to_json(account)  as account_entries
+  //           FROM (
+  //             SELECT
+  //               account.id,
+  //               account.name,
+  //               account.type,
+  //               account.sub_account,
+  //               account.amount,
+  //               (
+  //                 SELECT json_agg(entry)
+  //                 FROM (
+  //                   SELECT
+  //                     entry.id,
+  //                     entry.description,
+  //                     entry.installment,
+  //                     entry.month,
+  //                     entry.status,
+  //                     (
+  //                       SELECT json_agg(item)
+  //                       FROM (
+  //                         SELECT
+  //                           item.*
+  //                         FROM
+  //                           item
+  //                         WHERE
+  //                           item.entry_id = entry.id
+  //                       ) item
+  //                     ) as item,
+  //                     (
+  //                       SELECT
+  //                         sum(item.amount) as amount
+  //                       FROM
+  //                       item
+  //                       WHERE
+  //                       item.entry_id = entry.id
+  //                     ) as amount
+  //                   FROM entry
+  //                   WHERE entry.account_id = account.id AND entry.month = $1
+  //                 ) entry
+  //               ) as entry
+  //             FROM account
+  //           ) account`,
+  //         [`${request.query.month}`],
+  //       );
+  //     } else if (request.query.account) {
+  //       entrys = await entryRepository.query(
+  //         `
+  //           SELECT row_to_json(account)  as account_entries
+  //           FROM (
+  //             SELECT
+  //               account.id,
+  //               account.name,
+  //               account.type,
+  //               account.sub_account,
+  //               account.amount,
+  //               (
+  //                 SELECT json_agg(entry)
+  //                 FROM (
+  //                   SELECT
+  //                     entry.id,
+  //                     entry.description,
+  //                     entry.installment,
+  //                     entry.month,
+  //                     entry.status,
+  //                     (
+  //                       SELECT json_agg(item)
+  //                       FROM (
+  //                         SELECT
+  //                           item.*
+  //                         FROM
+  //                           item
+  //                         WHERE
+  //                           item.entry_id = entry.id
+  //                       ) item
+  //                     ) as item,
+  //                     (
+  //                       SELECT
+  //                         sum(item.amount) as amount
+  //                       FROM
+  //                       item
+  //                       WHERE
+  //                       item.entry_id = entry.id
+  //                     ) as amount
+  //                   FROM entry
+  //                   WHERE entry.account_id = account.id
+  //                 ) entry
+  //               ) as entry
+  //             FROM account
+  //             WHERE account.id = $1
+  //           ) account`,
+  //         [`${request.query.account}`],
+  //       );
+  //     } else {
+  //       entrys = await entryRepository.query(
+  //         `
+  //             SELECT row_to_json(account)  as account_entries
+  //             FROM (
+  //               SELECT
+  //                 account.id,
+  //                 account.name,
+  //                 account.type,
+  //                 account.sub_account,
+  //                 account.amount,
+  //                 (
+  //                   SELECT json_agg(entry)
+  //                   FROM (
+  //                     SELECT
+  //                       entry.id,
+  //                       entry.description,
+  //                       entry.installment,
+  //                       entry.month,
+  //                       entry.status,
+  //                       (
+  //                         SELECT json_agg(item)
+  //                         FROM (
+  //                           SELECT
+  //                             item.*
+  //                           FROM
+  //                             item
+  //                           WHERE
+  //                             item.entry_id = entry.id
+  //                         ) item
+  //                       ) as item,
+  //                       (
+  //                         SELECT
+  //                           sum(item.amount) as amount
+  //                         FROM
+  //                         item
+  //                         WHERE
+  //                         item.entry_id = entry.id
+  //                       ) as amount
+  //                     FROM entry
+  //                     WHERE entry.account_id = account.id
+  //                   ) entry
+  //                 ) as entry
+  //               FROM account
+  //             ) account`,
+  //       );
+  //     }
 
-      entrys?.map(account => {
-        account?.account_entries?.entry?.map(entry => {
-          if (account?.account_entries?.type === 'INCOME') {
-            income += Number(entry.amount);
-          } else {
-            expense += Number(entry.amount);
+  //     entrys?.map(account => {
+  //       account?.account_entries?.entry?.map(entry => {
+  //         if (account?.account_entries?.type === 'INCOME') {
+  //           income += Number(entry.amount);
+  //         } else {
+  //           expense += Number(entry.amount);
+  //         }
+  //       });
+  //     });
+
+  //     result = {
+  //       income,
+  //       expense,
+  //       entrys,
+  //     };
+
+  //     // entrys.forEach(entry => {
+  //     //   amount = getItemsAmount(entry);
+  //     //   result.push({ ...entry, amount });
+  //     // });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return response.json(error);
+  //   }
+
+  //   return response.json(result);
+  // }
+
+  async listAll(request: Request, response: Response): Promise<Response> {
+    const entryRepository = getCustomRepository(EntryRepository);
+    let result = [];
+    let entry = [];
+    const { type } = request.query;
+
+    try {
+      entry = await entryRepository.find({
+        relations: ['budget_month'],
+      });
+      console.log(type);
+      if (type !== undefined) {
+        entry.map(entry => {
+          if (entry.account.sub_account.type === type) {
+            result.push(entry);
           }
         });
-      });
-
-      result = {
-        income,
-        expense,
-        entrys,
-      };
-
-      // entrys.forEach(entry => {
-      //   amount = getItemsAmount(entry);
-      //   result.push({ ...entry, amount });
-      // });
+      } else {
+        result = entry;
+      }
     } catch (error) {
       console.log(error);
       return response.json(error);
     }
-
     return response.json(result);
   }
 

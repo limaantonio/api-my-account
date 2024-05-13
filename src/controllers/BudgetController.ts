@@ -15,7 +15,7 @@ export default class BudgetController {
     let totalBudgets = [];
 
     try {
-      budgets = await budgetRepository.find();
+      budgets = await budgetRepository.find({ relations: ['budget_months'] });
       totalBudgets = budgets.map(budget => getBudget(budget));
     } catch (error) {
       console.log(error);

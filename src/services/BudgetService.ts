@@ -3,20 +3,30 @@ import { Budget } from '../entities/Budget';
 
 function getTotalAmountIncome(budget: Budget): Number {
   let total = 0;
-  budget.accounts.forEach(account => {
-    if (account.type === 'INCOME') {
-      total += Number(account.amount);
-    }
+
+  budget.budget_months.forEach(budgetMonth => {
+    budgetMonth.entry.forEach(entry => {
+      if (entry.account.sub_account.type === 'INCOME') {
+        entry.items.forEach(item => {
+          total += Number(item.amount);
+        });
+      }
+    });
   });
+
   return total;
 }
 
 function getTotalAmountExpense(budget: Budget): Number {
   let total = 0;
-  budget.accounts.forEach(account => {
-    if (account.type === 'EXPENSE') {
-      total += Number(account.amount);
-    }
+  budget.budget_months.forEach(budgetMonth => {
+    budgetMonth.entry.forEach(entry => {
+      if (entry.account.sub_account.type === 'EXPENSE') {
+        entry.items.forEach(item => {
+          total += Number(item.amount);
+        });
+      }
+    });
   });
   return total;
 }
@@ -32,21 +42,29 @@ function getSummary(budget: Budget): number {
 
 function getTotalIncome(budget: Budget) {
   let total = 0;
-  budget.accounts.forEach(account => {
-    if (account.type === 'INCOME') {
-      total++;
-    }
+
+  budget.budget_months.forEach(budgetMonth => {
+    budgetMonth.entry.forEach(entry => {
+      if (entry.account.sub_account.type === 'INCOME') {
+        total++;
+      }
+    });
   });
+
   return total;
 }
 
 function getTotalExpanse(budget: Budget) {
   let total = 0;
-  budget.accounts.forEach(account => {
-    if (account.type === 'EXPENSE') {
-      total++;
-    }
+
+  budget.budget_months.forEach(budgetMonth => {
+    budgetMonth.entry.forEach(entry => {
+      if (entry.account.sub_account.type === 'EXPENSE') {
+        total++;
+      }
+    });
   });
+
   return total;
 }
 
@@ -55,7 +73,7 @@ function getTotalAccount(budget: Budget): number {
 }
 
 function getBudgetByType(budget: Budget, type: TypeRole): Account[] {
-  return budget.accounts.filter(account => account.type === type);
+  return budget.accounts.filter(account => account.sub_account.type === type);
 }
 
 function getBudget(budget: Budget) {
