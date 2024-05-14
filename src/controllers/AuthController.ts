@@ -1,11 +1,10 @@
 import { getCustomRepository } from 'typeorm';
-import jwt from 'jsonwebtoken';
-import authConfig from '../config/auth';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 const mailer = require('../modules/mailer');
 import UserRepository from '../respositories/UserRepository';
-import jwt from 'jsonwebtoken'; // Add missing import
+import jwt from 'jsonwebtoken';
+import { Request, Response } from 'express';
 
 const SECRET = 'f35c778693250ec5bdd4ba24aa4d9815';
 
@@ -16,7 +15,7 @@ function generateToken(params = {}) {
 }
 
 export default class AuthController {
-  async register(request, response) {
+  async register(request: Request, response: Response) {
     const { email, password, name } = request.body;
 
     try {
@@ -35,6 +34,7 @@ export default class AuthController {
       });
       await userRepository.save(user);
 
+      // @ts-ignore
       user.password = undefined;
 
       return response.send({
@@ -47,7 +47,7 @@ export default class AuthController {
     }
   }
 
-  async authenticate(request, response) {
+  async authenticate(request: Request, response: Response) {
     const { email, password } = request.body;
     const userRepository = getCustomRepository(UserRepository);
 
@@ -62,6 +62,7 @@ export default class AuthController {
       return response.status(400).send({ error: 'Invalid password' });
     }
 
+    // @ts-ignore
     user.password = undefined;
 
     return response.send({
@@ -70,7 +71,7 @@ export default class AuthController {
     });
   }
 
-  async forgot_password(request, response) {
+  async forgot_password(request: Request, response: Response) {
     const { email } = request.body;
 
     try {
@@ -100,6 +101,7 @@ export default class AuthController {
           template: 'auth/forgot_password',
           context: { token },
         },
+        // @ts-ignore
         err => {
           if (err) {
             console.error(err);
@@ -118,7 +120,7 @@ export default class AuthController {
     }
   }
 
-  async reset_password(request, response) {
+  async reset_password(request: Request, response: Response) {
     const { email, token, password } = request.body;
 
     try {
@@ -140,7 +142,9 @@ export default class AuthController {
       }
 
       user.password = await bcrypt.hash(password, 10);
+      // @ts-ignore
       user.reset_password_token = null;
+      // @ts-ignore
       user.reset_password_expires = null;
 
       await userRepository.save(user);

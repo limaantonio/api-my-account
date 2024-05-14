@@ -1,8 +1,17 @@
 import jwt from 'jsonwebtoken';
+import { NextFunction, Request, Response } from 'express';
 
 const SECRET = 'f35c778693250ec5bdd4ba24aa4d9815';
 
-export function auth(req, res, next) {
+interface AuthenticatedRequest extends Request {
+  userId: string; // Ou o tipo correto para o ID do usuário
+}
+
+export function auth(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -11,7 +20,7 @@ export function auth(req, res, next) {
 
   const parts = authHeader.split(' ');
 
-  if (!parts.length === 2) {
+  if (!(parts.length === 2)) {
     return res.status(401).send({ error: 'Token error' });
   }
 
@@ -26,7 +35,7 @@ export function auth(req, res, next) {
       return res.status(401).send({ error: 'Token invalid' });
     }
 
-    req.userId = decoded.id;
+    req.userId = (decoded as { id: string }).id;
     return next();
   });
 }

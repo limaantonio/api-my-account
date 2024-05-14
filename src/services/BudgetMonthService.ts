@@ -1,7 +1,4 @@
-import { Account } from '../entities/Account';
-import { Budget } from '../entities/Budget';
 import { BudgetMonth } from '../entities/BudgetMonth';
-import { TypeRole } from '../entities/SubAccount';
 
 function getTotalAmountIncome(budget: BudgetMonth): Number {
   let total = 0;
@@ -58,14 +55,6 @@ function getTotalExpanse(budget: BudgetMonth) {
 
 function getTotalAccount(budget: BudgetMonth): number {
   return Number(budget.entry.length);
-}
-
-function getBudgetByType(budget: Budget, type: TypeRole): Account[] {
-  return budget.accounts.filter(account => account.sub_account.type === type);
-}
-
-function getAvailableValue(account: Account): number {
-  return account.balance - account.limit;
 }
 
 function getBudget(budgetMonth: BudgetMonth) {

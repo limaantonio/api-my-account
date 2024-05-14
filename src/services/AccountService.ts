@@ -2,7 +2,10 @@ import { Account } from '../entities/Account';
 
 function verifyAmountBalance(accounts: Account[]) {
   let balance;
-  let result = [];
+  let result: {
+    balance: { available_value: number; used_value: number };
+    account: Account;
+  }[] = [];
   accounts.forEach(account => {
     balance = getAvailableValue(account);
     result.push({
@@ -19,7 +22,7 @@ function getAvailableValue(account: Account) {
   let used_value = 0;
 
   const values = { available_value, used_value };
-  if (account.entry.length === 0) {
+  if (account.entry) {
     available_value = account.amount * account.number_of_installments;
     values.available_value = available_value;
   }

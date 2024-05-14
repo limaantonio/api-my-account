@@ -47,7 +47,7 @@ class Account {
   sub_account: SubAccount;
 
   @OneToMany(() => Entry, entry => entry.account)
-  entry: Entry;
+  entry: Entry[];
 }
 
 export { Account };

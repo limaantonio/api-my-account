@@ -16,7 +16,7 @@ export default class SubAccountController {
   async listById(request: Request, response: Response): Promise<Response> {
     const subAccountRepository = getCustomRepository(SubAccountRepository);
     const { id } = request.params;
-    let result = {};
+    let result: SubAccount | undefined = undefined;
 
     try {
       result = await subAccountRepository.findOne(id);
@@ -56,6 +56,7 @@ export default class SubAccountController {
       }
 
       await subAccountRepository.update(id, data);
+      let result: SubAccount | undefined = undefined;
       result = await subAccountRepository.findOne(id);
     } catch (error) {
       console.log(error);

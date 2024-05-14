@@ -1,4 +1,3 @@
-import { request } from 'supertest';
 import { Entry, TypeRole } from '../entities/Entry';
 import EntryRepository from '../respositories/EntryRepository';
 import { Request, Response } from 'express';
@@ -249,7 +248,7 @@ export default class EntryController {
 
   async listAll(request: Request, response: Response): Promise<Response> {
     const entryRepository = getCustomRepository(EntryRepository);
-    let result = [];
+    let result: Entry[] = [];
     let entry = [];
     const { type } = request.query;
 
@@ -293,6 +292,7 @@ export default class EntryController {
         total += Number(item.amount);
       });
 
+      // @ts-ignore
       entry?.amount = total;
       total = 0;
     } catch (error) {
@@ -332,6 +332,7 @@ export default class EntryController {
         entry.items.map(item => {
           total += Number(item.amount);
         });
+        // @ts-ignore
         entry.amount = total;
         entries.push(entry);
         total = 0;
@@ -376,6 +377,7 @@ export default class EntryController {
         where: { id: account_id },
       });
 
+      // @ts-ignore
       _entry = await entryRepository.create({
         description,
         installment,
@@ -437,6 +439,7 @@ export default class EntryController {
 
     try {
       await entryRepository.update(id, {
+        // @ts-ignore
         status: 'CLOSED',
         updated_at: new Date(),
       });

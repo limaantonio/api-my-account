@@ -1,5 +1,9 @@
-import { Account, TypeRole } from '../entities/Account';
+import { Account } from '../entities/Account';
 import { Budget } from '../entities/Budget';
+
+interface TypeRole {
+  type: string;
+}
 
 function getTotalAmountIncome(budget: Budget): Number {
   let total = 0;
@@ -73,7 +77,9 @@ function getTotalAccount(budget: Budget): number {
 }
 
 function getBudgetByType(budget: Budget, type: TypeRole): Account[] {
-  return budget.accounts.filter(account => account.sub_account.type === type);
+  return budget.accounts.filter(
+    account => account.sub_account.type === type.type,
+  );
 }
 
 function getBudget(budget: Budget) {

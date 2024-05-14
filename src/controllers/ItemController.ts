@@ -97,10 +97,11 @@ export default class ItemController {
       if (
         account &&
         account.sub_account?.type === 'EXPENSE' &&
-        value <= getTotalAmountExpense(budget_month)
+        budget_month &&
+        value <= getTotalAmountExpense(budget_month).valueOf()
       ) {
         err = 'Insufficient funds';
-        await entryRepository.delete(savedEntry.id);
+        await entryRepository.delete(savedEntry[0].id);
       } else {
         for (const itemData of data.items) {
           const item = await itemRepository.create({
@@ -108,7 +109,7 @@ export default class ItemController {
             entry: savedEntry,
           });
           const savedItem = await itemRepository.save(item);
-          createdItems.push(savedItem);
+          createdItems = savedItem; // Fix: Change the type of createdItems from Item[] to Item
         }
       }
     } catch (error) {

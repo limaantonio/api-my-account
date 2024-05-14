@@ -1,16 +1,29 @@
+import { Request, Response } from 'express';
 import UserRepository from '../respositories/UserRepository';
 import { getCustomRepository } from 'typeorm';
 
+interface IResquestUser {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export default class UserController {
-  async listById(request: Request, response: Response): Promise {
+  async listById(
+    request: Request,
+    response: Response,
+  ): Promise<Response<IResquestUser>> {
     const userRepository = getCustomRepository(UserRepository);
-    let user;
+    const { id } = request.params;
+    let _budgetMonth;
 
     try {
-      user = await userRepository.findOne(request.params.id);
-      return response.json(user);
+      _budgetMonth = await userRepository.findOne(id);
     } catch (error) {
-      return response.status(400).json({ message: error.message });
+      console.log(error);
+      return response.json(error);
     }
+
+    return response.json(_budgetMonth);
   }
 }
