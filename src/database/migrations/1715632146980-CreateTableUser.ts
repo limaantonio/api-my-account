@@ -1,10 +1,11 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTableItem1715304601168 implements MigrationInterface {
+export class CreateTableUser1715632146980 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'item',
+        // <--- Error: Cannot read property 'createTable' of undefined
+        name: 'user',
         columns: [
           {
             name: 'id',
@@ -16,23 +17,24 @@ export class CreateTableItem1715304601168 implements MigrationInterface {
           {
             name: 'name',
             type: 'varchar',
+          },
+          {
+            name: 'email',
+            type: 'varchar',
+          },
+          {
+            name: 'password',
+            type: 'varchar',
+          },
+          {
+            name: 'reset_password_token',
+            type: 'varchar',
             isNullable: true,
           },
           {
-            name: 'qtde',
-            type: 'integer',
-            default: 1,
+            name: 'reset_password_expires',
+            type: 'timestamp',
             isNullable: true,
-          },
-          {
-            name: 'amount',
-            type: 'decimal',
-            precision: 10,
-            scale: 2,
-          },
-          {
-            name: 'entry_id',
-            type: 'uuid',
           },
           {
             name: 'created_at',
@@ -45,21 +47,11 @@ export class CreateTableItem1715304601168 implements MigrationInterface {
             isNullable: true,
           },
         ],
-        foreignKeys: [
-          {
-            name: 'FKEntry',
-            referencedTableName: 'entry',
-            referencedColumnNames: ['id'],
-            columnNames: ['entry_id'],
-            onDelete: 'CASCADE',
-            onUpdate: 'CASCADE',
-          },
-        ],
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('item');
+    await queryRunner.dropTable('user');
   }
 }

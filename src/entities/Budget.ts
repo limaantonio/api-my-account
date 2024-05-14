@@ -1,6 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Account } from './Account';
 import { BudgetMonth } from './BudgetMonth';
+import { User } from './User';
 
 @Entity('budget')
 class Budget {
@@ -29,6 +37,9 @@ class Budget {
   })
   budget_months: BudgetMonth[];
 
+  @ManyToOne(() => User, user => user.budget)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 }
 
 export { Budget };

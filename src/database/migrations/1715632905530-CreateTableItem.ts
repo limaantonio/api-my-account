@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTableBudgetMonth1715304506291 implements MigrationInterface {
+export class CreateTableItem1715632905530 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'budget_month',
+        name: 'item',
         columns: [
           {
             name: 'id',
@@ -14,12 +14,25 @@ export class CreateTableBudgetMonth1715304506291 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'budget_id',
-            type: 'uuid',
+            name: 'name',
+            type: 'varchar',
+            isNullable: true,
           },
           {
-            name: 'month',
+            name: 'qtde',
             type: 'integer',
+            default: 1,
+            isNullable: true,
+          },
+          {
+            name: 'amount',
+            type: 'decimal',
+            precision: 10,
+            scale: 2,
+          },
+          {
+            name: 'entry_id',
+            type: 'uuid',
           },
           {
             name: 'created_at',
@@ -34,10 +47,10 @@ export class CreateTableBudgetMonth1715304506291 implements MigrationInterface {
         ],
         foreignKeys: [
           {
-            name: 'FKBudget',
-            referencedTableName: 'budget',
+            name: 'FKEntry',
+            referencedTableName: 'entry',
             referencedColumnNames: ['id'],
-            columnNames: ['budget_id'],
+            columnNames: ['entry_id'],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
           },
@@ -47,6 +60,6 @@ export class CreateTableBudgetMonth1715304506291 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('budget_month');
+    await queryRunner.dropTable('item');
   }
 }

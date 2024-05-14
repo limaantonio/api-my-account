@@ -3,6 +3,7 @@ import BudgetRepository from '../respositories/BudgetRepository';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { getBudget } from '../services/BudgetService';
+import UserRepository from '../respositories/UserRepository';
 
 export default class BudgetController {
   async listAll(
@@ -69,11 +70,16 @@ export default class BudgetController {
     response: Response,
   ): Promise<Response<Budget>> {
     const budgetRepository = getCustomRepository(BudgetRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const data = request.body;
     let budget;
     let err;
 
     try {
+      const user = await userRepository.findOne({
+        where: { id: data.user_id },
+      });
+
       if (!data.year) {
         err = 'Year is required';
         throw new Error('Year is required' as any);
@@ -87,7 +93,10 @@ export default class BudgetController {
         }
       }
 
-      budget = await budgetRepository.create(data);
+      budget = await budgetRepository.create({
+        year: data.year,
+        user: user,
+      });
       await budgetRepository.save(budget);
     } catch (error) {
       console.log(error);

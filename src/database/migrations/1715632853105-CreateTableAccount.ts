@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTableSubAccount1715304447236 implements MigrationInterface {
+export class CreateTableAccount1715632853105 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'sub_account',
+        name: 'account',
         columns: [
           {
             name: 'id',
@@ -18,12 +18,10 @@ export class CreateTableSubAccount1715304447236 implements MigrationInterface {
             type: 'varchar',
           },
           {
-            name: 'percentage',
-            type: 'decimal',
-            precision: 10,
-            scale: 2,
+            name: 'number_of_installments',
+            type: 'integer',
+            isNullable: true,
           },
-          { name: 'type', type: 'enum', enum: ['INCOME', 'EXPENSE'] },
           {
             name: 'amount',
             type: 'decimal',
@@ -31,14 +29,12 @@ export class CreateTableSubAccount1715304447236 implements MigrationInterface {
             scale: 2,
           },
           {
-            name: 'installments',
-            type: 'integer',
-            isNullable: true,
+            name: 'budget_id',
+            type: 'uuid',
           },
           {
-            name: 'principal',
-            type: 'boolean',
-            default: false,
+            name: 'sub_account_id',
+            type: 'uuid',
           },
           {
             name: 'created_at',
@@ -51,11 +47,29 @@ export class CreateTableSubAccount1715304447236 implements MigrationInterface {
             isNullable: true,
           },
         ],
+        foreignKeys: [
+          {
+            name: 'FKBudget',
+            referencedTableName: 'budget',
+            referencedColumnNames: ['id'],
+            columnNames: ['budget_id'],
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+          },
+          {
+            name: 'FKSubAccount',
+            referencedTableName: 'sub_account',
+            referencedColumnNames: ['id'],
+            columnNames: ['sub_account_id'],
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+          },
+        ],
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('sub_account');
+    await queryRunner.dropTable('account');
   }
 }

@@ -1,18 +1,31 @@
 import { Router } from 'express';
+import UserController from './controllers/UserController';
 import BudgetController from './controllers/BudgetController';
 import AccountController from './controllers/AccountController';
 import EntryController from './controllers/EntryController';
 import ItemController from './controllers/ItemController';
 import BudgetMonthController from './controllers/BudgetMonthController';
 import SubAccountController from './controllers/SubAccountController';
+import AuthController from './controllers/AuthController';
 
 const routes = Router();
+const authController = new AuthController();
+const userController = new UserController();
 const budgetController = new BudgetController();
 const accountController = new AccountController();
 const entryController = new EntryController();
 const itemController = new ItemController();
 const budgetMonthController = new BudgetMonthController();
 const subAccountController = new SubAccountController();
+
+routes.post('/authenticated', authController.authenticate);
+routes.post('/register', authController.register);
+routes.post('/authenticate', authController.authenticate);
+routes.post('/forgot_password', authController.forgot_password);
+routes.post('/reset_password', authController.reset_password);
+
+routes.post('/user', userController.create);
+routes.post('/auth', userController.login);
 
 routes.get('/budget', budgetController.listAll);
 routes.get('/budget/:id/', budgetController.listById);
