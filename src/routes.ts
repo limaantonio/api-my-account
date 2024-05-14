@@ -26,7 +26,7 @@ routes.post('/forgot_password', authController.forgot_password);
 routes.post('/reset_password', authController.reset_password);
 
 // routes.post('/user', userController.create);
-// routes.post('/auth', userController.login);
+routes.get('/user/:id/', userController.listById);
 
 routes.get('/budget', budgetController.listAll);
 routes.get('/budget/:id/', budgetController.listById);
