@@ -1,5 +1,6 @@
-import { auth } from './auth';
 import jwt from 'jsonwebtoken';
+
+const SECRET = 'f35c778693250ec5bdd4ba24aa4d9815';
 
 export function auth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -20,7 +21,7 @@ export function auth(req, res, next) {
     return res.status(401).send({ error: 'Token malformatted' });
   }
 
-  jwt.verify(token, 'f35c778693250ec5bdd4ba24aa4d9815', (err, decoded) => {
+  jwt.verify(token, SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).send({ error: 'Token invalid' });
     }

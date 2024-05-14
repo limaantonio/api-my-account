@@ -7,6 +7,7 @@ import ItemController from './controllers/ItemController';
 import BudgetMonthController from './controllers/BudgetMonthController';
 import SubAccountController from './controllers/SubAccountController';
 import AuthController from './controllers/AuthController';
+import { auth } from './middlewares/auth';
 
 const routes = Router();
 const authController = new AuthController();
@@ -24,8 +25,8 @@ routes.post('/authenticate', authController.authenticate);
 routes.post('/forgot_password', authController.forgot_password);
 routes.post('/reset_password', authController.reset_password);
 
-routes.post('/user', userController.create);
-routes.post('/auth', userController.login);
+// routes.post('/user', userController.create);
+// routes.post('/auth', userController.login);
 
 routes.get('/budget', budgetController.listAll);
 routes.get('/budget/:id/', budgetController.listById);
