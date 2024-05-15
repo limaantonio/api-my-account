@@ -293,7 +293,7 @@ export default class EntryController {
       });
 
       // @ts-ignore
-      entry?.amount = total;
+      //entry?.amount = total;
       total = 0;
     } catch (error) {
       console.log(error);
