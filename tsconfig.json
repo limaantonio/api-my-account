@@ -1,25 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es2020",
     "module": "commonjs",
+    "target": "es5",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
     "strictPropertyInitialization": false,
     "paths": {
-      "@database/*": ["./database/*"],
-      "@controllers/*": ["./controllers/*"],
-      "@entities/*": ["./entities/*"]
+      "@database/*": ["./src/database/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@entities/*": ["./src/entities/*"]
     },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "baseUrl": "./",
-    "typeRoots": ["./node_modules/@types", "./src/@types"],
-    "lib": ["es2020", "dom"]
-    
+    "experimentalDecorators": true
   }
 }

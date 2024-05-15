@@ -1,21 +1,24 @@
+const dotevnt = require("dotenv");
+
+dotevnt.config({
+  path: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.production",
+});
+
+console.log(process.env.TYPEORM_MIGRATION);
+console.log(process.env.TYPEORM_ENTITIES);
+console.log(process.env.TYPEORM_MIGRATION_DIR);
+console.log(process.env.NODE_ENV);
 
 module.exports = {
-   type: "postgres",
-   url: process.env.DATABASE_URL,
-   host: "",
-  //ssl: true,
-   // extra: {
-   //   ssl: {
-   //     rejectUnauthorized: false,
-   //   },
-   // },
-   port: 5432,
-   username: 'postgres',
-   password: 'root',
-   database: 'db_my_account',
-   migrations: ["./src/database/migrations/*.ts"],
-   entities: ["./src/entities/*.ts"],
-   cli: {
-     migrationsDir: "./src/database/migrations",
-   },
- };
+  type: "postgres",
+  host: "localhost",
+  port: 5432,
+  username: "postgres",
+  password: 'mypass',
+  database: "db_my_account",
+  migrations: [process.env.TYPEORM_MIGRATION],
+  entities: [process.env.TYPEORM_ENTITIES],
+  cli: {
+    migrationsDir: process.env.TYPEORM_MIGRATION_DIR,
+  },
+};
