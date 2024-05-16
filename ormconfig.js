@@ -3,9 +3,9 @@ console.log("DATABASE_URL: ", process.env.DATABASE_URL);
 module.exports = {
   type: "postgres",
   url: process.env.DATABASE_URL,
-  migrations: ["./src/database/migrations/*.js"],
-  entities: ["./src/entities/*.js"],
+  migrations: ["./dist/src/database/migrations/*.js"],
+  entities: ["./dist/src/entities/*.js"],
   cli: {
-    migrationsDir: "./src/database/migrations",
+    migrationsDir: "./dist/src/database/migrations",
    },
 };
