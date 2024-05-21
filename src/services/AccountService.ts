@@ -1,6 +1,7 @@
 import { Account } from '../entities/Account';
 
 function verifyAmountBalance(accounts: Account[]) {
+  console.log(accounts);
   let balance;
   let result: {
     balance: { available_value: number; used_value: number };

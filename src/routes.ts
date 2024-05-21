@@ -27,8 +27,9 @@ routes.post('/reset_password', authController.reset_password);
 
 // routes.post('/user', userController.create);
 routes.get('/user/:id/', userController.listById);
+routes.get('/users/', userController.list);
 
-routes.get('/budget', budgetController.listAll);
+routes.get('/budget/user/:id/', budgetController.listAll);
 routes.get('/budget/:id/', budgetController.listById);
 routes.post('/budget', budgetController.create);
 routes.put('/budget/:id/', budgetController.update);
@@ -53,8 +54,8 @@ routes.get('/account/balance/budget/:id/', accountController.getBalance);
 routes.post('/account/budget/:id/', accountController.createByBudget);
 
 routes.post('/subaccount', subAccountController.create);
-routes.get('/subaccount/balance', subAccountController.getBalance);
-routes.get('/subaccount', subAccountController.listSubAccount);
+routes.get('/subaccount/balance/budget/:id/', subAccountController.getBalance);
+routes.get('/subaccount/budget/:id/', subAccountController.listSubAccount);
 routes.delete('/subaccount/:id/', subAccountController.deletById);
 routes.get('/subaccount/:id/', subAccountController.listById);
 routes.put('/subaccount/:id/', subAccountController.update);

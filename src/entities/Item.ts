@@ -22,9 +22,6 @@ class Item {
   amount!: Number;
 
   @Column()
-  entry_id!: string;
-
-  @Column()
   created_at!: Date;
 
   @Column()

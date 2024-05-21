@@ -14,9 +14,15 @@ export default class BudgetController {
 
     let budgets = [];
     let totalBudgets = [];
+    const { id } = request.params;
+
+    console.log(id);
 
     try {
-      budgets = await budgetRepository.find({ relations: ['budget_months'] });
+      budgets = await budgetRepository.find({
+        where: { user: id },
+        relations: ['budget_months', 'sub_accounts'],
+      });
       totalBudgets = budgets.map(budget => getBudget(budget));
     } catch (error) {
       console.log(error);
@@ -80,6 +86,8 @@ export default class BudgetController {
         where: { id: data.user_id },
       });
 
+      console.log(user);
+
       if (!data.year) {
         err = 'Year is required';
         throw new Error('Year is required' as any);
@@ -97,6 +105,9 @@ export default class BudgetController {
         year: data.year,
         user: user,
       });
+
+      console.log(budget);
+
       await budgetRepository.save(budget);
     } catch (error) {
       console.log(error);

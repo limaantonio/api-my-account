@@ -3,6 +3,7 @@ import { getCustomRepository } from 'typeorm';
 import SubAccountRepository from '../respositories/SubAccountRepository';
 import { SubAccount } from '../entities/SubAccount';
 import { TypeRole } from '../entities/SubAccount';
+import BudgetRepository from '../respositories/BudgetRepository';
 
 interface IResquestSubAccount {
   name: string;
@@ -70,6 +71,7 @@ export default class SubAccountController {
     response: Response,
   ): Promise<Response<IResquestSubAccount[]>> {
     const subAccountRepository = getCustomRepository(SubAccountRepository);
+    const budgetRepository = getCustomRepository(BudgetRepository);
     const data = request.body;
     let result = [];
     let _sub_accounts = Array<SubAccount>();
@@ -94,7 +96,15 @@ export default class SubAccountController {
       }
 
       for (const _subAccount of data) {
-        let item: SubAccount[] = subAccountRepository.create([_subAccount]);
+        const budget = await budgetRepository.findOne(data.budget_id);
+        console.log(budget);
+        let item: SubAccount[] = subAccountRepository.create([
+          {
+            // Change the type of 'item' to 'SubAccount[]'
+            ..._subAccount,
+            budget,
+          },
+        ]);
 
         _sub_accounts.push(...item);
       }
@@ -115,7 +125,9 @@ export default class SubAccountController {
     let result = {};
 
     try {
-      const subaccount = await subAccountRepository.find();
+      const subaccount = await subAccountRepository.find({
+        where: { budget: request.params.id },
+      });
 
       totalLiquidAmount = subaccount.reduce((acc, item) => {
         //pega so as receitas principais (salario)
@@ -175,9 +187,15 @@ export default class SubAccountController {
   ): Promise<Response> {
     const subAccountRepository = getCustomRepository(SubAccountRepository);
     let result = [];
+    const { id } = request.params;
 
     try {
-      result = await subAccountRepository.find();
+      result = await subAccountRepository.find({
+        where: {
+          budget: id,
+        },
+        relations: ['budget'],
+      });
     } catch (error) {
       console.log(error);
       return response.json(error);

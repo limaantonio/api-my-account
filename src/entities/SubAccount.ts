@@ -1,5 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+// SubAccount.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Account } from './Account';
+import { Budget } from './Budget';
 
 export enum TypeRole {
   INCOME = 'INCOME',
@@ -38,6 +47,10 @@ class SubAccount {
 
   @OneToMany(() => Account, account => account.sub_account)
   accounts: Account[];
+
+  @ManyToOne(() => Budget, budget => budget.sub_accounts)
+  @JoinColumn({ name: 'budget_id' })
+  budget: Budget;
 }
 
 export { SubAccount };

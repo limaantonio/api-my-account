@@ -18,7 +18,27 @@ export default class UserController {
     let _budgetMonth;
 
     try {
-      _budgetMonth = await userRepository.findOne(id);
+      _budgetMonth = await userRepository.findOne({
+        where: { id },
+        relations: ['budget'],
+      });
+    } catch (error) {
+      console.log(error);
+      return response.json(error);
+    }
+
+    return response.json(_budgetMonth);
+  }
+
+  async list(
+    request: Request,
+    response: Response,
+  ): Promise<Response<IResquestUser>> {
+    const userRepository = getCustomRepository(UserRepository);
+    let _budgetMonth;
+
+    try {
+      _budgetMonth = await userRepository.find();
     } catch (error) {
       console.log(error);
       return response.json(error);

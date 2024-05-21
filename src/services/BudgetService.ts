@@ -7,10 +7,11 @@ interface TypeRole {
 
 function getTotalAmountIncome(budget: Budget): Number {
   let total = 0;
+  console.log(budget);
 
-  budget.budget_months.forEach(budgetMonth => {
+  budget?.budget_months?.forEach(budgetMonth => {
     budgetMonth.entry.forEach(entry => {
-      if (entry.account.sub_account.type === 'INCOME') {
+      if (entry?.account?.sub_account.type === 'INCOME') {
         entry.items.forEach(item => {
           total += Number(item.amount);
         });
@@ -23,9 +24,9 @@ function getTotalAmountIncome(budget: Budget): Number {
 
 function getTotalAmountExpense(budget: Budget): Number {
   let total = 0;
-  budget.budget_months.forEach(budgetMonth => {
+  budget?.budget_months?.forEach(budgetMonth => {
     budgetMonth.entry.forEach(entry => {
-      if (entry.account.sub_account.type === 'EXPENSE') {
+      if (entry?.account?.sub_account.type === 'EXPENSE') {
         entry.items.forEach(item => {
           total += Number(item.amount);
         });
@@ -36,9 +37,12 @@ function getTotalAmountExpense(budget: Budget): Number {
 }
 
 function getSummary(budget: Budget): number {
-  if (budget.accounts.length === 0) {
-    return 0;
-  }
+  budget.sub_accounts.forEach(subAccount => {
+    if (subAccount?.accounts) {
+      return 0;
+    }
+  });
+
   return (
     Number(getTotalAmountIncome(budget)) - Number(getTotalAmountExpense(budget))
   );
@@ -47,9 +51,9 @@ function getSummary(budget: Budget): number {
 function getTotalIncome(budget: Budget) {
   let total = 0;
 
-  budget.budget_months.forEach(budgetMonth => {
+  budget?.budget_months?.forEach(budgetMonth => {
     budgetMonth.entry.forEach(entry => {
-      if (entry.account.sub_account.type === 'INCOME') {
+      if (entry.account?.sub_account.type === 'INCOME') {
         total++;
       }
     });
@@ -61,9 +65,9 @@ function getTotalIncome(budget: Budget) {
 function getTotalExpanse(budget: Budget) {
   let total = 0;
 
-  budget.budget_months.forEach(budgetMonth => {
+  budget?.budget_months?.forEach(budgetMonth => {
     budgetMonth.entry.forEach(entry => {
-      if (entry.account.sub_account.type === 'EXPENSE') {
+      if (entry.account?.sub_account.type === 'EXPENSE') {
         total++;
       }
     });
@@ -73,7 +77,7 @@ function getTotalExpanse(budget: Budget) {
 }
 
 function getTotalAccount(budget: Budget): number {
-  return Number(budget.accounts.length);
+  return Number(budget?.sub_accounts?.accounts?.length);
 }
 
 function getBudgetByType(budget: Budget, type: TypeRole): Account[] {

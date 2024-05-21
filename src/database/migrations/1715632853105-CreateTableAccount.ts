@@ -29,11 +29,11 @@ export class CreateTableAccount1715632853105 implements MigrationInterface {
             scale: 2,
           },
           {
-            name: 'budget_id',
+            name: 'sub_account_id',
             type: 'uuid',
           },
           {
-            name: 'sub_account_id',
+            name: 'budget_id',
             type: 'uuid',
           },
           {
@@ -49,18 +49,18 @@ export class CreateTableAccount1715632853105 implements MigrationInterface {
         ],
         foreignKeys: [
           {
-            name: 'FKBudget',
-            referencedTableName: 'budget',
-            referencedColumnNames: ['id'],
-            columnNames: ['budget_id'],
-            onDelete: 'CASCADE',
-            onUpdate: 'CASCADE',
-          },
-          {
             name: 'FKSubAccount',
             referencedTableName: 'sub_account',
             referencedColumnNames: ['id'],
             columnNames: ['sub_account_id'],
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+          },
+          {
+            name: 'FKBudget',
+            referencedTableName: 'budget',
+            referencedColumnNames: ['id'],
+            columnNames: ['budget_id'],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
           },

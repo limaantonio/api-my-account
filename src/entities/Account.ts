@@ -25,9 +25,6 @@ class Account {
   amount!: number;
 
   @Column()
-  budget_id!: string;
-
-  @Column()
   sub_account_id!: string;
 
   @Column()
@@ -36,17 +33,21 @@ class Account {
   @Column()
   updated_at!: Date;
 
-  @ManyToOne(() => Budget, budget => budget.accounts)
-  @JoinColumn({ name: 'budget_id' })
-  budget: Budget;
-
   @ManyToOne(() => SubAccount, subAccount => subAccount.accounts, {
     eager: true,
   })
   @JoinColumn({ name: 'sub_account_id' })
   sub_account: SubAccount;
 
-  @OneToMany(() => Entry, entry => entry.account)
+  @ManyToOne(() => Budget, budget => budget.accounts, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'budget_id' })
+  budget: Budget;
+
+  @OneToMany(() => Entry, entry => entry.account, {
+    eager: true,
+  })
   entry: Entry[];
 }
 

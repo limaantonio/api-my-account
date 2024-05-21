@@ -9,6 +9,7 @@ import {
 import { Account } from './Account';
 import { BudgetMonth } from './BudgetMonth';
 import { User } from './User';
+import { SubAccount } from './SubAccount';
 
 @Entity('budget')
 class Budget {
@@ -27,19 +28,20 @@ class Budget {
   @Column()
   updated_at!: Date;
 
-  @OneToMany(() => Account, account => account.budget, {
+  @OneToMany(() => SubAccount, subAccount => subAccount.budget, {
     eager: true,
   })
-  accounts: Account[];
+  sub_accounts: SubAccount[];
 
-  @OneToMany(() => BudgetMonth, budgetMonth => budgetMonth.budget, {
-    eager: true,
-  })
+  @OneToMany(() => BudgetMonth, budgetMonth => budgetMonth.budget)
   budget_months: BudgetMonth[];
 
   @ManyToOne(() => User, user => user.budget)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @OneToMany(() => Account, account => account.budget)
+  accounts: Account[];
 }
 
 export { Budget };

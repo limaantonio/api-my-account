@@ -32,6 +32,9 @@ class Entry {
   status!: TypeRole.PENDING;
 
   @Column()
+  budget_month_id!: string;
+
+  @Column()
   account_id!: string;
 
   @Column()
@@ -49,9 +52,7 @@ class Entry {
   @JoinColumn({ name: 'budget_month_id' })
   budget_month: BudgetMonth;
 
-  @OneToOne(() => Account, account => account.entry, {
-    eager: true,
-  })
+  @OneToOne(() => Account, account => account.entry)
   @JoinColumn({ name: 'account_id' })
   account: Account;
 }

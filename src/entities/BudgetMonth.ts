@@ -15,10 +15,10 @@ export class BudgetMonth {
   id!: string;
 
   @Column()
-  budget_id!: string;
+  month!: number;
 
   @Column()
-  month!: number;
+  budget_id!: string;
 
   @Column()
   created_at!: Date;

@@ -42,7 +42,7 @@ export default class AccountController {
     try {
       _accounts = await accountRepository.find({
         where: { budget_id: id },
-        relations: ['entry', 'sub_account'],
+        relations: ['sub_account'],
       });
 
       accounts = verifyAmountBalance(_accounts);
@@ -124,12 +124,10 @@ export default class AccountController {
     let _accounts;
     let accounts;
 
-    try {
-      _accounts = await accountRepository.find({
-        where: { budget_id: id },
-        relations: ['entry', 'sub_account'],
-      });
+    console.log(id);
 
+    try {
+      _accounts = await accountRepository.find();
       console.log(_accounts);
     } catch (error) {
       console.log(error);
@@ -199,12 +197,13 @@ export default class AccountController {
         ) {
           return response.status(400).json({ error: 'Saldo insuficiente' });
         } else {
-          account = await accountRepository.create({
+          //@ts-ignore
+          account = accountRepository.create({
             name: _account.name,
             amount: _account.amount,
             sub_account,
             number_of_installments: _account.number_of_installments,
-            budget,
+            budget: budget, // Add the 'budget' property
           });
           await accountRepository.save(account);
           createdItems.push(account);
