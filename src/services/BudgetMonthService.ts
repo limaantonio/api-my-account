@@ -3,7 +3,7 @@ import { BudgetMonth } from '../entities/BudgetMonth';
 function getTotalAmountIncome(budget: BudgetMonth): Number {
   let total = 0;
   budget.entry.forEach(entry => {
-    if (entry.account.sub_account.type === 'INCOME') {
+    if (entry.account?.sub_account.type === 'INCOME') {
       entry.items.map(item => {
         total += Number(item.amount);
       });
@@ -14,8 +14,9 @@ function getTotalAmountIncome(budget: BudgetMonth): Number {
 
 function getTotalAmountExpense(budget: BudgetMonth): Number {
   let total = 0;
-  budget.entry.forEach(entry => {
-    if (entry.account.sub_account.type === 'EXPENSE') {
+  console.log(budget);
+  budget?.entry.forEach(entry => {
+    if (entry?.account?.sub_account?.type === 'EXPENSE') {
       entry.items.map(item => {
         total += Number(item.amount);
       });

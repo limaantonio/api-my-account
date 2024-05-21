@@ -33,6 +33,9 @@ class Account {
   @Column()
   updated_at!: Date;
 
+  @Column()
+  budget_id!: string;
+
   @ManyToOne(() => SubAccount, subAccount => subAccount.accounts, {
     eager: true,
   })

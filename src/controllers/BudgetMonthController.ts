@@ -122,10 +122,17 @@ export default class BudgetMonthController {
     const { id } = request.params;
     let _budgetMonth;
 
+    console.log(id);
+
     try {
       _budgetMonth = await budgetMonthRepository.findOne({
         where: { id },
-        relations: ['entry'],
+        relations: [
+          'entry',
+          'entry.account',
+          'entry.account.sub_account',
+          'entry.items',
+        ],
       });
     } catch (error) {
       console.log(error);

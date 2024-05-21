@@ -45,6 +45,8 @@ export default class AccountController {
         relations: ['sub_account'],
       });
 
+      console.log(_accounts);
+
       accounts = verifyAmountBalance(_accounts);
 
       let income = 0;

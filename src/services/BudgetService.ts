@@ -77,6 +77,7 @@ function getTotalExpanse(budget: Budget) {
 }
 
 function getTotalAccount(budget: Budget): number {
+  //@ts-ignore
   return Number(budget?.sub_accounts?.accounts?.length);
 }
 

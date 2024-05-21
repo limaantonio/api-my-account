@@ -129,6 +129,8 @@ export default class SubAccountController {
         where: { budget: request.params.id },
       });
 
+      console.log(subaccount);
+
       totalLiquidAmount = subaccount.reduce((acc, item) => {
         //pega so as receitas principais (salario)
         if (item.type === 'INCOME' && item.principal === true) {
