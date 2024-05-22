@@ -97,7 +97,7 @@ export default class SubAccountController {
 
       for (const _subAccount of data) {
         const budget = await budgetRepository.findOne(data.budget_id);
-        console.log(budget);
+
         let item: SubAccount[] = subAccountRepository.create([
           {
             // Change the type of 'item' to 'SubAccount[]'
@@ -128,8 +128,6 @@ export default class SubAccountController {
       const subaccount = await subAccountRepository.find({
         where: { budget: request.params.id },
       });
-
-      console.log(subaccount);
 
       totalLiquidAmount = subaccount.reduce((acc, item) => {
         //pega so as receitas principais (salario)

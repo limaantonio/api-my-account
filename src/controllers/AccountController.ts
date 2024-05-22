@@ -42,10 +42,8 @@ export default class AccountController {
     try {
       _accounts = await accountRepository.find({
         where: { budget_id: id },
-        relations: ['sub_account'],
+        relations: ['sub_account', 'budget', 'entry'],
       });
-
-      console.log(_accounts);
 
       accounts = verifyAmountBalance(_accounts);
 
@@ -126,11 +124,11 @@ export default class AccountController {
     let _accounts;
     let accounts;
 
-    console.log(id);
-
     try {
-      _accounts = await accountRepository.find();
-      console.log(_accounts);
+      _accounts = await accountRepository.find({
+        where: { budget_id: id },
+        relations: ['sub_account', 'budget', 'entry'],
+      });
     } catch (error) {
       console.log(error);
       return response.json(error);
@@ -172,8 +170,6 @@ export default class AccountController {
         const sub_account = await subAccountRepository.findOne({
           where: { id: _account.sub_account_id },
         });
-
-        console.log(sub_account);
 
         if (sub_account === undefined) {
           return response.json({ error: 'sub_account não encontrada' });
@@ -249,8 +245,6 @@ export default class AccountController {
           where: { id: accountData.sub_account_id },
         });
 
-        console.log(sub_account);
-
         const accounts = await accountRepository.find({
           where: {
             sub_account: sub_account,
@@ -259,15 +253,11 @@ export default class AccountController {
 
         let total = 0;
 
-        //console.log(accounts);
-
         if (accounts.length > 0) {
           total = accounts.reduce((acc, account) => {
             return acc + Number(account.amount);
           }, 0);
         }
-
-        //console.log(total);
 
         if (sub_account && sub_account?.amount > accountData.amount + total) {
           return response.status(400).json({ error: 'Saldo insuficiente' });

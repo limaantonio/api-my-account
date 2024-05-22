@@ -7,7 +7,6 @@ interface TypeRole {
 
 function getTotalAmountIncome(budget: Budget): Number {
   let total = 0;
-  console.log(budget);
 
   budget?.budget_months?.forEach(budgetMonth => {
     budgetMonth.entry.forEach(entry => {

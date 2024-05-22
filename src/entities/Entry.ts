@@ -52,7 +52,9 @@ class Entry {
   @JoinColumn({ name: 'budget_month_id' })
   budget_month: BudgetMonth;
 
-  @OneToOne(() => Account, account => account.entry)
+  @OneToOne(() => Account, account => account.entry, {
+    eager: true,
+  })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 }

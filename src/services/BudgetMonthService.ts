@@ -14,7 +14,7 @@ function getTotalAmountIncome(budget: BudgetMonth): Number {
 
 function getTotalAmountExpense(budget: BudgetMonth): Number {
   let total = 0;
-  console.log(budget);
+
   budget?.entry.forEach(entry => {
     if (entry?.account?.sub_account?.type === 'EXPENSE') {
       entry.items.map(item => {

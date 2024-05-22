@@ -256,7 +256,7 @@ export default class EntryController {
       entry = await entryRepository.find({
         relations: ['budget_month'],
       });
-      console.log(type);
+
       if (type !== undefined) {
         entry.map(entry => {
           if (entry.account.sub_account.type === type) {

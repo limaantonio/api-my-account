@@ -16,8 +16,6 @@ export default class BudgetController {
     let totalBudgets = [];
     const { id } = request.params;
 
-    console.log(id);
-
     try {
       budgets = await budgetRepository.find({
         where: { user: id },
@@ -105,8 +103,6 @@ export default class BudgetController {
         year: data.year,
         user: user,
       });
-
-      console.log(budget);
 
       await budgetRepository.save(budget);
     } catch (error) {
